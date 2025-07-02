@@ -1,36 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Voltron Chat</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <title>Добро пожаловать</title>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 40px auto; }
+    form { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; background: #f9f9f9; }
+    input { width: 100%; padding: 8px; margin: 10px 0; }
+    button { padding: 8px 12px; }
+    h2 { margin-top: 0; }
+  </style>
 </head>
 <body>
-  <ul id="messages"></ul>
-  <form id="form">
-    <input id="m" autocomplete="off" /><button>Send</button>
+  <h2>Регистрация</h2>
+  <form action="/register" method="POST">
+    <input name="login" placeholder="Логин" required>
+    <input name="password" type="password" placeholder="Пароль" required>
+    <input name="repeat" type="password" placeholder="Повтор пароля" required>
+    <button>Зарегистрироваться</button>
   </form>
 
-  <script>
-    const socket = io();
-
-    const form = document.getElementById("form");
-    const input = document.getElementById("m");
-    const messages = document.getElementById("messages");
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit("chat message", input.value);
-        input.value = "";
-      }
-    });
-
-    socket.on("chat message", (msg) => {
-      const item = document.createElement("li");
-      item.textContent = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-  </script>
+  <h2>Вход</h2>
+  <form action="/login" method="POST">
+    <input name="login" placeholder="Логин" required>
+    <input name="password" type="password" placeholder="Пароль" required>
+    <button>Войти</button>
+  </form>
 </body>
 </html>
