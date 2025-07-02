@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "start": "node index.js"
-},
+  "scripts": {
+    "start": "node index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Valtron001/VoltronChat.git"
@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/Valtron001/VoltronChat#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
+    "express-session": "^1.18.1",
     "socket.io": "^4.8.1"
   }
 }
