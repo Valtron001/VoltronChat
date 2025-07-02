@@ -1,49 +1,26 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <title>Онлайн-чат</title>
-  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
-  <style>
-    body { font-family: sans-serif; max-width: 500px; margin: 20px auto; }
-    #messages { list-style: none; padding: 0; }
-    #messages li { padding: 4px 8px; margin: 4px 0; background: #f1f1f1; border-radius: 5px; }
-    .self { background: #d1ffd1; text-align: right; }
-    #input { width: 70%; padding: 8px; }
-    button { padding: 8px 12px; }
-  </style>
-</head>
-<body>
-  <h2>Онлайн-чат</h2>
-  <ul id="messages"></ul>
-  <input id="input" placeholder="Введите сообщение" />
-  <button onclick="sendMessage()">Отправить</button>
+<<!-- Подключаем Socket.IO -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io(); // ⬅️ Без localhost!
 
-  <script>
-    const socket = io("http://localhost:3000");
-    const input = document.getElementById("input");
-    const messages = document.getElementById("messages");
+  const form = document.querySelector("form");
+  const input = document.querySelector("#m");
+  const messages = document.querySelector("#messages");
 
-    function addMessage(text, isSelf = false) {
-      const li = document.createElement("li");
-      li.textContent = text;
-      if (isSelf) li.classList.add("self");  // выделим свои сообщения
-      messages.appendChild(li);
-      messages.scrollTop = messages.scrollHeight; // автопрокрутка вниз
+  // Отправляем сообщение на сервер
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (input.value) {
+      socket.emit("chat message", input.value);
+      input.value = "";
     }
+  });
 
-    function sendMessage() {
-      const msg = input.value.trim();
-      if (msg) {
-        socket.emit("message", msg);
-        addMessage("Вы: " + msg, true);  // сразу отображаем своё сообщение
-        input.value = "";
-      }
-    }
-
-    socket.on("message", (msg) => {
-      addMessage(msg);  // входящее сообщение от других
-    });
-  </script>
-</body>
-</html>
+  // Получаем сообщение от сервера
+  socket.on("chat message", function(msg) {
+    const item = document.createElement("li");
+    item.textContent = msg;
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+  });
+</script>

@@ -1,20 +1,29 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
-app.use(express.static('public'));
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Раздача статических файлов из папки public
+app.use(express.static("public"));
 
-io.on('connection', socket => {
-  socket.on('message', msg => {
-    socket.broadcast.emit('message', msg);
+// Обработка подключения клиентов
+io.on("connection", (socket) => {
+  console.log("🔌 Пользователь подключился");
+
+  // При получении сообщения — рассылаем всем
+  socket.on("chat message", (msg) => {
+    io.emit("chat message", msg); // ✅ видно всем клиентам
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Пользователь отключился");
   });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`✅ Сервер запущен на порту ${PORT}`);
 });
