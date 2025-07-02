@@ -5,16 +5,44 @@
   <title>Voltron Chat</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 40px; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 5px 0; padding: 5px; background: #f0f0f0; }
-    form { margin-top: 20px; }
-    input { padding: 5px; width: 70%; }
-    button { padding: 5px 10px; }
+    body {
+      font-family: sans-serif;
+      margin: 40px;
+      max-width: 600px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 6px 0;
+      padding: 8px;
+      background: #e7f0fa;
+      border-radius: 5px;
+    }
+    .nickname {
+      font-weight: bold;
+      color: #3366cc;
+    }
+    form {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 8px;
+    }
+    button {
+      padding: 8px 12px;
+    }
   </style>
 </head>
 <body>
-  <h2>Добро пожаловать в чат, {{username}}!</h2>
+  <h2>Voltron Chat</h2>
+  <form action="/logout" method="POST" style="margin-bottom: 20px;">
+  <button>Выйти из чата</button>
+</form>
   <ul id="messages"></ul>
   <form id="form">
     <input id="m" autocomplete="off" placeholder="Введите сообщение..." />
@@ -29,15 +57,29 @@
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      if (input.value.trim()) {
-        socket.emit("chat message", input.value);
+      const msg = input.value.trim();
+      if (msg) {
+        socket.emit("chat message", msg);
         input.value = "";
       }
     });
 
     socket.on("chat message", function(msg) {
       const item = document.createElement("li");
-      item.textContent = msg;
+
+      // если сообщение содержит "Ник: текст"
+      const parts = msg.split(":");
+      if (parts.length >= 2) {
+        const nicknameSpan = document.createElement("span");
+        nicknameSpan.textContent = parts.shift().trim() + ": ";
+        nicknameSpan.classList.add("nickname");
+
+        item.appendChild(nicknameSpan);
+        item.appendChild(document.createTextNode(parts.join(":").trim()));
+      } else {
+        item.textContent = msg;
+      }
+
       messages.appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
