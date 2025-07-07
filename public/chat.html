@@ -24,7 +24,13 @@
     }
 
     .sidebar {
-      width: 250px;
+      width: 240px;
+      height: 85vh;
+      background-color: #1a1a1a;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-y: auto;
+      box-shadow: 0 0 15px #80d0ff40;
     }
 
     .chat-area {
@@ -32,9 +38,16 @@
       max-width: 600px;
     }
 
-    h1, h4 {
+    h1 {
       color: #80d0ff;
       text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color:#6dc4f3;
+      text-align: center;
+      margin-bottom: 30px;
     }
 
     ul {
@@ -42,17 +55,38 @@
       padding: 0;
     }
 
-    li {
-      margin: 6px 0;
-      padding: 8px;
-      background: #1f1f1f;
+    .sidebar ul li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px;
       border-radius: 5px;
-      color: #a4e6ff;
+      transition: 0.2s;
+    }
+
+    .sidebar ul li:hover {
+      background-color: #2a2a2a;
+      cursor: pointer;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #6dc4f3;
+      border-radius: 50%;
     }
 
     .nickname {
       font-weight: bold;
       color: #80d0ff;
+    }
+
+    li.message-item {
+      margin: 6px 0;
+      padding: 8px;
+      background: #1f1f1f;
+      border-radius: 5px;
+      color: #a4e6ff;
     }
 
     form {
@@ -86,14 +120,13 @@
 </head>
 <body>
 
-  <h1 style="margin-bottom: 10px;">🤖 Voltron Chat</h1>
-  <p style="color:#6dc4f3; text-align: center; margin-bottom: 30px;">Минимализм, мощь и glow✨</p>
+  <h1>🤖 Voltron Chat</h1>
+  <p>Минимализм, мощь и glow✨</p>
 
   <div class="wrapper">
     <div class="sidebar">
-      <h4>🟢 В сети:</h4>
-      <ul id="online-users" style="margin-bottom: 20px;"></ul>
-      <form action="/logout" method="POST" style="margin-bottom: 20px;">
+      <ul id="online-users"></ul>
+      <form action="/logout" method="POST" style="margin-top: 20px;">
         <button>Выйти из чата</button>
       </form>
     </div>
@@ -124,19 +157,13 @@
 
     socket.on("online users", (users) => {
       onlineUsersBlock.innerHTML = "";
-      const countItem = document.createElement("li");
-      countItem.textContent = `👥 Онлайн: ${users.length} человек(а)`;
-      countItem.style.fontWeight = "bold";
-      countItem.style.marginBottom = "8px";
-      onlineUsersBlock.appendChild(countItem);
-
       users.forEach(name => {
         const li = document.createElement("li");
-        if (name === myNickname) {
-          li.innerHTML = `<strong>${name} (вы)</strong>`;
-        } else {
-          li.textContent = name;
-        }
+        const dot = `<span class="status-dot"></span>`;
+        const label = name === myNickname
+          ? `<span class="nickname">${name} (вы)</span>`
+          : `<span>${name}</span>`;
+        li.innerHTML = `${dot} ${label}`;
         onlineUsersBlock.appendChild(li);
       });
     });
@@ -162,6 +189,7 @@
 
     function renderMessage(msg) {
       const item = document.createElement("li");
+      item.classList.add("message-item");
       const parts = msg.text.split(":");
       if (parts.length >= 2) {
         const nicknameSpan = document.createElement("span");
