@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Вход в Voltron Chat</title>
+  <title>Регистрация в Voltron Chat</title>
   <style>
     body {
       background-color: #121212;
@@ -68,16 +68,17 @@
 </head>
 <body>
   <div class="auth-container">
-    <h2>Вход</h2>
-    <form action="/login" method="POST">
+    <h2>Регистрация</h2>
+    <form action="/register" method="POST">
+      <input name="nickname" placeholder="Ник в чате" required>
       <input name="login" placeholder="Логин" required>
       <input type="password" name="password" placeholder="Пароль" required>
-      <input name="nickname" placeholder="Ник в чате" required>
-      <button>Войти</button>
+      <input type="password" name="confirm" placeholder="Повтор пароля" required>
+      <button>Зарегистрироваться</button>
     </form>
     <div class="links">
-      <p>Ещё нет аккаунта?<br>
-      <a href="/register">Зарегистрироваться</a></p>
+      <p>Уже есть аккаунт?<br>
+      <a href="/login">Войти</a></p>
     </div>
   </div>
 </body>
