@@ -75,12 +75,12 @@ io.on("connection", (socket) => {
   const nickname = socket.handshake.session.nickname || "Гость";
   console.log(`🟢 Подключился: ${nickname}`);
 
-  // 🔹 Отправляем историю за последние 20 минут
+  // Отправляем историю за последние 20 минут
   const cutoff = Date.now() - 20 * 60 * 1000;
   const recentMessages = messages.filter(m => m.time > cutoff);
   socket.emit("chat history", recentMessages);
 
-  // 🔹 Слушаем новые сообщения
+  // Слушаем новые сообщения
   socket.on("chat message", (msg) => {
     const fullMsg = {
       text: `${nickname}: ${msg}`,

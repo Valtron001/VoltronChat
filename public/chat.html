@@ -40,20 +40,35 @@
 </head>
 <body>
   <h2>Voltron Chat</h2>
+
   <form action="/logout" method="POST" style="margin-bottom: 20px;">
-  <button>Выйти из чата</button>
-</form>
+    <button>Выйти из чата</button>
+  </form>
+
   <ul id="messages"></ul>
+
   <form id="form">
     <input id="m" autocomplete="off" placeholder="Введите сообщение..." />
     <button>Отправить</button>
   </form>
+
+  <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>
 
   <script>
     const socket = io();
     const form = document.getElementById("form");
     const input = document.getElementById("m");
     const messages = document.getElementById("messages");
+
+    socket.on("chat history", (history) => {
+      history.forEach(msg => renderMessage(msg));
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    socket.on("chat message", (msg) => {
+      renderMessage(msg);
+      document.getElementById("notif").play();
+    });
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -64,25 +79,20 @@
       }
     });
 
-    socket.on("chat message", function(msg) {
+    function renderMessage(msg) {
       const item = document.createElement("li");
-
-      // если сообщение содержит "Ник: текст"
-      const parts = msg.split(":");
+      const parts = msg.text.split(":");
       if (parts.length >= 2) {
         const nicknameSpan = document.createElement("span");
         nicknameSpan.textContent = parts.shift().trim() + ": ";
         nicknameSpan.classList.add("nickname");
-
         item.appendChild(nicknameSpan);
         item.appendChild(document.createTextNode(parts.join(":").trim()));
       } else {
-        item.textContent = msg;
+        item.textContent = msg.text;
       }
-
       messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+    }
   </script>
 </body>
 </html>
