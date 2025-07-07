@@ -41,6 +41,9 @@
 <body>
   <h2>Voltron Chat</h2>
 
+  <h4>🟢 В сети:</h4>
+<ul id="online-users" style="margin-bottom: 20px;"></ul>
+
   <form action="/logout" method="POST" style="margin-bottom: 20px;">
     <button>Выйти из чата</button>
   </form>
@@ -56,9 +59,37 @@
 
   <script>
     const socket = io();
+    let myNickname = null;
+
+socket.on("your nickname", (nick) => {
+  myNickname = nick;
+});
     const form = document.getElementById("form");
     const input = document.getElementById("m");
     const messages = document.getElementById("messages");
+const onlineUsersBlock = document.getElementById("online-users");
+
+socket.on("online users", (users) => {
+  onlineUsersBlock.innerHTML = "";
+
+  // 👥 Заголовок со счётчиком
+  const countItem = document.createElement("li");
+  countItem.textContent = `👥 Онлайн: ${users.length} человек(а)`;
+  countItem.style.fontWeight = "bold";
+  countItem.style.marginBottom = "8px";
+  onlineUsersBlock.appendChild(countItem);
+
+  // 👤 Список ников
+  users.forEach(name => {
+    const li = document.createElement("li");
+    if (name === myNickname) {
+      li.innerHTML = `<strong>${name} (вы)</strong>`;
+    } else {
+      li.textContent = name;
+    }
+    onlineUsersBlock.appendChild(li);
+  });
+});
 
     socket.on("chat history", (history) => {
       history.forEach(msg => renderMessage(msg));

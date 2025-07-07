@@ -1,4 +1,5 @@
 const messages = []; // Хранилище сообщений
+const onlineUsers = new Map(); // socket.id → nickname
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
@@ -73,6 +74,9 @@ app.post("/logout", (req, res) => {
 // 📡 Socket.IO соединение
 io.on("connection", (socket) => {
   const nickname = socket.handshake.session.nickname || "Гость";
+onlineUsers.set(socket.id, nickname);
+socket.emit("your nickname", nickname); // ← это твой собственный ник
+io.emit("online users", Array.from(onlineUsers.values())); // список всех
   console.log(`🟢 Подключился: ${nickname}`);
 
   // Отправляем историю за последние 20 минут
@@ -91,6 +95,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+onlineUsers.delete(socket.id);
+io.emit("online users", Array.from(onlineUsers.values()));
     console.log(`🔴 Отключился: ${nickname}`);
   });
 });
