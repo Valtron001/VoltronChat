@@ -4,42 +4,73 @@
   <meta charset="UTF-8">
   <title>Voltron Chat</title>
   <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 40px;
-      max-width: 600px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 6px 0;
-      padding: 8px;
-      background: #e7f0fa;
-      border-radius: 5px;
-    }
-    .nickname {
-      font-weight: bold;
-      color: #3366cc;
-    }
-    form {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-    }
-    input {
-      flex: 1;
-      padding: 8px;
-    }
-    button {
-      padding: 8px 12px;
-    }
-  </style>
+ <style>
+  body {
+    background-color: #121212;
+    color: #a4e6ff;
+    font-family: sans-serif;
+    margin: 40px;
+    max-width: 600px;
+    box-shadow: inset 0 0 200px #80d0ff20;
+  }
+
+  h1, h2, h4 {
+    color: #80d0ff;
+    text-align: center;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    margin: 6px 0;
+    padding: 8px;
+    background: #1f1f1f;
+    border-radius: 5px;
+    color: #a4e6ff;
+  }
+
+  .nickname {
+    font-weight: bold;
+    color: #80d0ff;
+  }
+
+  form {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  input {
+    flex: 1;
+    padding: 8px;
+    background-color: #0e0e0e;
+    border: 1px solid #6dc4f3;
+    color: #a4e6ff;
+  }
+
+  button {
+    padding: 8px 12px;
+    background-color: #0e0e0e;
+    color: #6dc4f3;
+    border: 1px solid #6dc4f3;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background-color: #1a1a1a;
+    box-shadow: 0 0 10px #6dc4f3;
+  }
+</style>
 </head>
 <body>
-  <h2>Voltron Chat</h2>
+  <div style="text-align: center; margin-bottom: 20px;">
+  <h1 style="color:#80d0ff; font-size: 28px;">🤖 Voltron Chat</h1>
+  <p style="color:#6dc4f3; font-size: 14px;">Минимализм, мощь и glow✨</p>
+</div>
 
   <h4>🟢 В сети:</h4>
 <ul id="online-users" style="margin-bottom: 20px;"></ul>
