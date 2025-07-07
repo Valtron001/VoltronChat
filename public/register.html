@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>Регистрация в Voltron Chat</title>
@@ -70,7 +70,7 @@
   <div class="auth-container">
     <h2>Регистрация</h2>
     <form action="/register" method="POST">
-      <input name="nickname" placeholder="Ник в чате" required>
+      <input name="nickname" placeholder="Ник в чате" required autofocus>
       <input name="login" placeholder="Логин" required>
       <input type="password" name="password" placeholder="Пароль" required>
       <input type="password" name="confirm" placeholder="Повтор пароля" required>
@@ -78,7 +78,8 @@
     </form>
     <div class="links">
       <p>Уже есть аккаунт?<br>
-      <a href="/login">Войти</a></p>
+        <a href="/login">Войти</a>
+      </p>
     </div>
   </div>
 </body>
