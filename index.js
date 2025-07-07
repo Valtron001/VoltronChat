@@ -16,31 +16,34 @@ const expressSession = session({
   saveUninitialized: true
 });
 
-// Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(expressSession);
 
-// Привязываем сессии к Socket.IO
+// Подключаем сессии к сокетам
 io.use(sharedSession(expressSession));
 
-// Хранилище пользователей (логин → хеш пароля)
+// "База" пользователей: логин → хеш пароля
 const users = {};
 
+// 📌 Регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat } = req.body;
-  if (users[login]) return res.send("❌ Такой логин уже существует");
+  if (users[login]) return res.send("❌ Такой логин уже есть");
   if (password !== repeat) return res.send("❌ Пароли не совпадают");
 
   const hash = await bcrypt.hash(password, 10);
   users[login] = hash;
+
   req.session.user = login;
   res.redirect("/chat");
 });
 
+// 📌 Вход с логином, паролем и ником
 app.post("/login", async (req, res) => {
   const { login, password, nickname } = req.body;
   const hash = users[login];
+
   if (!hash || !(await bcrypt.compare(password, hash))) {
     return res.send("❌ Неверный логин или пароль");
   }
@@ -50,17 +53,20 @@ app.post("/login", async (req, res) => {
   res.redirect("/chat");
 });
 
+// 📌 Страница чата (только после входа)
 app.get("/chat", (req, res) => {
   if (!req.session.user) return res.redirect("/");
   res.sendFile(__dirname + "/public/chat.html");
 });
 
+// 📌 Выход из чата
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/");
   });
 });
 
+// 📡 Socket.IO соединение
 io.on("connection", (socket) => {
   const nickname = socket.handshake.session.nickname || "Гость";
   console.log(`🟢 Подключился: ${nickname}`);
@@ -75,6 +81,7 @@ io.on("connection", (socket) => {
   });
 });
 
+// 🚀 Запуск сервера
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`✅ Сервер запущен на порту ${PORT}`);
