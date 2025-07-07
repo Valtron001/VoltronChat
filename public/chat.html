@@ -4,87 +4,108 @@
   <meta charset="UTF-8">
   <title>Voltron Chat</title>
   <script src="/socket.io/socket.io.js"></script>
- <style>
-  body {
-    background-color: #121212;
-    color: #a4e6ff;
-    font-family: sans-serif;
-    margin: 40px;
-    max-width: 600px;
-    box-shadow: inset 0 0 200px #80d0ff20;
-  }
+  <style>
+    body {
+      background-color: #121212;
+      color: #a4e6ff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      box-shadow: inset 0 0 200px #80d0ff20;
+    }
 
-  h1, h2, h4 {
-    color: #80d0ff;
-    text-align: center;
-  }
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-  ul {
-    list-style: none;
-    padding: 0;
-  }
+    .sidebar {
+      width: 250px;
+    }
 
-  li {
-    margin: 6px 0;
-    padding: 8px;
-    background: #1f1f1f;
-    border-radius: 5px;
-    color: #a4e6ff;
-  }
+    .chat-area {
+      flex: 1;
+      max-width: 600px;
+    }
 
-  .nickname {
-    font-weight: bold;
-    color: #80d0ff;
-  }
+    h1, h4 {
+      color: #80d0ff;
+      text-align: center;
+    }
 
-  form {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-  }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
 
-  input {
-    flex: 1;
-    padding: 8px;
-    background-color: #0e0e0e;
-    border: 1px solid #6dc4f3;
-    color: #a4e6ff;
-  }
+    li {
+      margin: 6px 0;
+      padding: 8px;
+      background: #1f1f1f;
+      border-radius: 5px;
+      color: #a4e6ff;
+    }
 
-  button {
-    padding: 8px 12px;
-    background-color: #0e0e0e;
-    color: #6dc4f3;
-    border: 1px solid #6dc4f3;
-    cursor: pointer;
-    transition: 0.3s;
-  }
+    .nickname {
+      font-weight: bold;
+      color: #80d0ff;
+    }
 
-  button:hover {
-    background-color: #1a1a1a;
-    box-shadow: 0 0 10px #6dc4f3;
-  }
-</style>
+    form {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 8px;
+      background-color: #0e0e0e;
+      border: 1px solid #6dc4f3;
+      color: #a4e6ff;
+    }
+
+    button {
+      padding: 8px 12px;
+      background-color: #0e0e0e;
+      color: #6dc4f3;
+      border: 1px solid #6dc4f3;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #1a1a1a;
+      box-shadow: 0 0 10px #6dc4f3;
+    }
+  </style>
 </head>
 <body>
-  <div style="text-align: center; margin-bottom: 20px;">
-  <h1 style="color:#80d0ff; font-size: 28px;">🤖 Voltron Chat</h1>
-  <p style="color:#6dc4f3; font-size: 14px;">Минимализм, мощь и glow✨</p>
-</div>
 
-  <h4>🟢 В сети:</h4>
-<ul id="online-users" style="margin-bottom: 20px;"></ul>
+  <h1 style="margin-bottom: 10px;">🤖 Voltron Chat</h1>
+  <p style="color:#6dc4f3; text-align: center; margin-bottom: 30px;">Минимализм, мощь и glow✨</p>
 
-  <form action="/logout" method="POST" style="margin-bottom: 20px;">
-    <button>Выйти из чата</button>
-  </form>
+  <div class="wrapper">
+    <div class="sidebar">
+      <h4>🟢 В сети:</h4>
+      <ul id="online-users" style="margin-bottom: 20px;"></ul>
+      <form action="/logout" method="POST" style="margin-bottom: 20px;">
+        <button>Выйти из чата</button>
+      </form>
+    </div>
 
-  <ul id="messages"></ul>
-
-  <form id="form">
-    <input id="m" autocomplete="off" placeholder="Введите сообщение..." />
-    <button>Отправить</button>
-  </form>
+    <div class="chat-area">
+      <ul id="messages"></ul>
+      <form id="form">
+        <input id="m" autocomplete="off" placeholder="Введите сообщение..." />
+        <button>Отправить</button>
+      </form>
+    </div>
+  </div>
 
   <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>
 
@@ -92,35 +113,33 @@
     const socket = io();
     let myNickname = null;
 
-socket.on("your nickname", (nick) => {
-  myNickname = nick;
-});
+    socket.on("your nickname", (nick) => {
+      myNickname = nick;
+    });
+
     const form = document.getElementById("form");
     const input = document.getElementById("m");
     const messages = document.getElementById("messages");
-const onlineUsersBlock = document.getElementById("online-users");
+    const onlineUsersBlock = document.getElementById("online-users");
 
-socket.on("online users", (users) => {
-  onlineUsersBlock.innerHTML = "";
+    socket.on("online users", (users) => {
+      onlineUsersBlock.innerHTML = "";
+      const countItem = document.createElement("li");
+      countItem.textContent = `👥 Онлайн: ${users.length} человек(а)`;
+      countItem.style.fontWeight = "bold";
+      countItem.style.marginBottom = "8px";
+      onlineUsersBlock.appendChild(countItem);
 
-  // 👥 Заголовок со счётчиком
-  const countItem = document.createElement("li");
-  countItem.textContent = `👥 Онлайн: ${users.length} человек(а)`;
-  countItem.style.fontWeight = "bold";
-  countItem.style.marginBottom = "8px";
-  onlineUsersBlock.appendChild(countItem);
-
-  // 👤 Список ников
-  users.forEach(name => {
-    const li = document.createElement("li");
-    if (name === myNickname) {
-      li.innerHTML = `<strong>${name} (вы)</strong>`;
-    } else {
-      li.textContent = name;
-    }
-    onlineUsersBlock.appendChild(li);
-  });
-});
+      users.forEach(name => {
+        const li = document.createElement("li");
+        if (name === myNickname) {
+          li.innerHTML = `<strong>${name} (вы)</strong>`;
+        } else {
+          li.textContent = name;
+        }
+        onlineUsersBlock.appendChild(li);
+      });
+    });
 
     socket.on("chat history", (history) => {
       history.forEach(msg => renderMessage(msg));
