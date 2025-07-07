@@ -33,9 +33,29 @@
       box-shadow: 0 0 15px #80d0ff40;
     }
 
-    .chat-area {
+    .chat-panel {
       flex: 1;
       max-width: 600px;
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 0 15px #80d0ff40;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 85vh;
+    }
+
+    .chat-window {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 5px;
+      margin-bottom: 15px;
+    }
+
+    .chat-window ul {
+      padding: 0;
+      list-style: none;
     }
 
     h1 {
@@ -48,11 +68,6 @@
       color:#6dc4f3;
       text-align: center;
       margin-bottom: 30px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
     }
 
     .sidebar ul li {
@@ -90,7 +105,6 @@
     }
 
     form {
-      margin-top: 20px;
       display: flex;
       gap: 10px;
     }
@@ -131,8 +145,10 @@
       </form>
     </div>
 
-    <div class="chat-area">
-      <ul id="messages"></ul>
+    <div class="chat-panel">
+      <div class="chat-window">
+        <ul id="messages"></ul>
+      </div>
       <form id="form">
         <input id="m" autocomplete="off" placeholder="Введите сообщение..." />
         <button>Отправить</button>
@@ -170,7 +186,7 @@
 
     socket.on("chat history", (history) => {
       history.forEach(msg => renderMessage(msg));
-      window.scrollTo(0, document.body.scrollHeight);
+      messages.scrollTop = messages.scrollHeight;
     });
 
     socket.on("chat message", (msg) => {
@@ -201,6 +217,7 @@
         item.textContent = msg.text;
       }
       messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
     }
   </script>
 </body>
