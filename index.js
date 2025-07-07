@@ -28,7 +28,8 @@ const users = {};
 
 // 📌 Регистрация
 app.post("/register", async (req, res) => {
-  const { login, password, repeat } = req.body;
+  const { login, password, repeat, nickname } = req.body;
+
   if (users[login]) return res.send("❌ Такой логин уже есть");
   if (password !== repeat) return res.send("❌ Пароли не совпадают");
 
@@ -36,6 +37,8 @@ app.post("/register", async (req, res) => {
   users[login] = hash;
 
   req.session.user = login;
+  req.session.nickname = nickname || "Гость";
+
   res.redirect("/chat");
 });
 

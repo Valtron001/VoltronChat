@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Регистрация</title>
+  <title>Вход в чат</title>
   <style>
     body {
       font-family: sans-serif;
@@ -23,32 +23,25 @@
     button {
       padding: 8px 16px;
     }
-    .small-text {
-      font-size: 14px;
-      margin-top: 20px;
-      color: #444;
-    }
     a {
       color: #3366cc;
       text-decoration: none;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h2>Регистрация</h2>
-  <form action="/register" method="POST">
-    <input name="nickname" placeholder="Ник в чате" required>
+  <h2>Вход</h2>
+  <form action="/login" method="POST">
     <input name="login" placeholder="Логин" required>
     <input name="password" type="password" placeholder="Пароль" required>
-    <input name="repeat" type="password" placeholder="Повтор пароля" required>
-    <button>Зарегистрироваться</button>
+    <input name="nickname" placeholder="Ник в чате" required>
+    <button>Войти</button>
   </form>
 
-  <div class="small-text">
-    Уже есть зарегистрированный аккаунт?<br>
-    <a href="/login.html">Вход</a><br><br>
-    Войти как гость:<br>
-    <a href="/chat">Гость</a>
-  </div>
+  <p>
+    Ещё нет аккаунта?<br>
+    <a href="/">Зарегистрироваться</a>
+  </p>
 </body>
 </html>
