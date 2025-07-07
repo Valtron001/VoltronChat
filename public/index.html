@@ -1,54 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Регистрация</title>
+  <title>Voltron Chat</title>
   <style>
     body {
+      background-color: #121212;
       font-family: sans-serif;
-      max-width: 400px;
-      margin: 40px auto;
+      color: #a4e6ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       text-align: center;
+      box-shadow: inset 0 0 200px #80d0ff20;
     }
-    form {
-      border: 1px solid #ccc;
-      padding: 20px;
-      background: #f9f9f9;
+
+    h1 {
+      font-size: 36px;
+      color: #80d0ff;
+      margin-bottom: 10px;
     }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin: 10px 0;
+
+    p {
+      color: #6dc4f3;
+      margin-bottom: 30px;
     }
-    button {
-      padding: 8px 16px;
-    }
-    .small-text {
-      font-size: 14px;
-      margin-top: 20px;
-      color: #444;
-    }
-    a {
-      color: #3366cc;
+
+    .links a {
+      display: inline-block;
+      margin: 10px 15px;
+      padding: 10px 20px;
+      background-color: #0e0e0e;
+      border: 1px solid #6dc4f3;
+      border-radius: 6px;
+      color: #6dc4f3;
       text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .links a:hover {
+      background-color: #1a1a1a;
+      box-shadow: 0 0 10px #6dc4f3;
     }
   </style>
 </head>
 <body>
-  <h2>Регистрация</h2>
-  <form action="/register" method="POST">
-    <input name="nickname" placeholder="Ник в чате" required>
-    <input name="login" placeholder="Логин" required>
-    <input name="password" type="password" placeholder="Пароль" required>
-    <input name="repeat" type="password" placeholder="Повтор пароля" required>
-    <button>Зарегистрироваться</button>
-  </form>
-
-  <div class="small-text">
-    Уже есть зарегистрированный аккаунт?<br>
-    <a href="/login.html">Вход</a><br><br>
-    Войти как гость:<br>
-    <a href="/chat">Гость</a>
+  <h1>🚀 Добро пожаловать в Voltron Chat</h1>
+  <p>Минимализм, мощь и glow ✨</p>
+  <div class="links">
+    <a href="/login">🔐 Войти</a>
+    <a href="/register">📝 Регистрация</a>
+    <a href="/chat">💬 Войти как гость</a>
   </div>
 </body>
 </html>
