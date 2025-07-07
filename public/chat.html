@@ -43,7 +43,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      height: 85vh;
+      height: 600px; /* фиксированная высота */
     }
 
     .chat-window {
@@ -139,6 +139,7 @@
 
   <div class="wrapper">
     <div class="sidebar">
+      <h4>🟢 В сети:</h4>
       <ul id="online-users"></ul>
       <form action="/logout" method="POST" style="margin-top: 20px;">
         <button>Выйти из чата</button>
