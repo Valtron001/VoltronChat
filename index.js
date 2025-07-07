@@ -1,3 +1,4 @@
+const messages = []; // Хранилище сообщений
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
@@ -74,8 +75,18 @@ io.on("connection", (socket) => {
   const nickname = socket.handshake.session.nickname || "Гость";
   console.log(`🟢 Подключился: ${nickname}`);
 
+  // 🔹 Отправляем историю за последние 20 минут
+  const cutoff = Date.now() - 20 * 60 * 1000;
+  const recentMessages = messages.filter(m => m.time > cutoff);
+  socket.emit("chat history", recentMessages);
+
+  // 🔹 Слушаем новые сообщения
   socket.on("chat message", (msg) => {
-    const fullMsg = `${nickname}: ${msg}`;
+    const fullMsg = {
+      text: `${nickname}: ${msg}`,
+      time: Date.now()
+    };
+    messages.push(fullMsg);
     io.emit("chat message", fullMsg);
   });
 
