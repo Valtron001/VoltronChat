@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
 });
 
 // 🚀 Запуск сервера
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 server.listen(PORT, () => {
   console.log(`✅ Сервер запущен на порту ${PORT}`);
 });
