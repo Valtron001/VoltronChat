@@ -6,6 +6,7 @@ const session = require("express-session");
 const http = require("http");
 const { Server } = require("socket.io");
 const sharedSession = require("express-socket.io-session");
+const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
@@ -22,14 +23,23 @@ app.use(express.static("public"));
 app.use(expressSession);
 io.use(sharedSession(expressSession));
 
-const users = {};
+// 🔐 Загрузка пользователей из файла
+const usersFile = "./users.json";
+let users = {};
+if (fs.existsSync(usersFile)) {
+  try {
+    users = JSON.parse(fs.readFileSync(usersFile));
+  } catch (err) {
+    console.error("⚠️ Ошибка чтения users.json:", err);
+    users = {};
+  }
+}
 
-// 📌 Показ страницы входа
+// 📌 Страницы входа и регистрации
 app.get("/login", (req, res) => {
   res.sendFile(__dirname + "/public/login.html");
 });
 
-// 📌 Показ страницы регистрации
 app.get("/register", (req, res) => {
   res.sendFile(__dirname + "/public/register.html");
 });
@@ -43,6 +53,7 @@ app.post("/register", async (req, res) => {
 
   const hash = await bcrypt.hash(password, 10);
   users[login] = hash;
+  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
 
   req.session.user = login;
   req.session.nickname = nickname || "Гость";
@@ -63,7 +74,7 @@ app.post("/login", async (req, res) => {
   res.redirect("/chat");
 });
 
-// 📌 Чат
+// 📌 Страница чата
 app.get("/chat", (req, res) => {
   if (!req.session.user) return res.redirect("/");
   res.sendFile(__dirname + "/public/chat.html");
