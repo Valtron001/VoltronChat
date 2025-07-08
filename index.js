@@ -64,7 +64,7 @@ app.post("/login", async (req, res) => {
   const hash = users[login];
 
   if (!hash || !(await bcrypt.compare(password, hash))) {
-    return res.send("❌ Неверный логин или пароль");
+    return res.sendFile(__dirname + "/public/error.html");
   }
 
   req.session.user = login;
