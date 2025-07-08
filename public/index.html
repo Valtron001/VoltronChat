@@ -20,10 +20,14 @@
       box-shadow: inset 0 0 200px #80d0ff20;
     }
 
-    h1 {
-      font-size: 36px;
-      color: #80d0ff;
-      margin-bottom: 10px;
+    .logo-block {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .logo-img {
+      max-width: 200px;
+      height: auto;
     }
 
     p {
@@ -59,9 +63,14 @@
     }
 
     @media (max-width: 600px) {
-      h1 {
-        font-size: 28px;
+      .logo-img {
+        max-width: 150px;
       }
+
+      p {
+        font-size: 16px;
+      }
+
       .links a {
         font-size: 15px;
         padding: 10px;
@@ -71,7 +80,9 @@
   </style>
 </head>
 <body>
-  <h1>🚀 Добро пожаловать в Voltron Chat</h1>
+  <div class="logo-block">
+    <img src="/images/logo.png" alt="Voltron Logo" class="logo-img">
+  </div>
   <p>Минимализм, мощь и glow ✨</p>
   <div class="links">
     <a href="/login">🔐 Войти</a>
