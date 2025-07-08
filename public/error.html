@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Ошибка входа</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background-color: #121212;
       font-family: sans-serif;
-      color: #ff6d6d;
       margin: 0;
       padding: 0;
       height: 100vh;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
+      align-items: center;
       text-align: center;
       box-shadow: inset 0 0 200px #ff6d6d30;
     }
@@ -22,11 +23,13 @@
       font-size: 32px;
       font-weight: bold;
       text-transform: uppercase;
+      color: #ff6d6d;
       border: 2px solid #ff6d6d;
-      padding: 30px 40px;
+      padding: 25px 30px;
       border-radius: 12px;
       background-color: #1a1a1a;
-      box-shadow: 0 0 20px #ff6d6d60;
+      box-shadow: 0 0 25px #ff6d6d60;
+      max-width: 90%;
     }
 
     a {
@@ -40,12 +43,17 @@
     a:hover {
       text-decoration: underline;
     }
+
+    @media (max-width: 600px) {
+      .error-message {
+        font-size: 22px;
+        padding: 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div>
-    <div class="error-message">НЕВЕРНЫЙ ЛОГИН ИЛИ ПАРОЛЬ</div>
-    <a href="/login">← Вернуться к входу</a>
-  </div>
+  <div class="error-message">НЕВЕРНЫЙ ЛОГИН ИЛИ ПАРОЛЬ</div>
+  <a href="/login">← Вернуться к входу</a>
 </body>
 </html>

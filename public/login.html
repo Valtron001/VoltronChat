@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>Вход в Voltron Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background-color: #121212;
@@ -13,9 +14,9 @@
 
     .auth-container {
       max-width: 400px;
-      margin: 80px auto;
+      margin: 60px auto;
       background-color: #1a1a1a;
-      padding: 30px;
+      padding: 30px 20px;
       border-radius: 10px;
       box-shadow: 0 0 20px #80d0ff30;
       text-align: center;
@@ -24,25 +25,28 @@
     .auth-container h2 {
       color: #80d0ff;
       margin-bottom: 20px;
+      font-size: 26px;
     }
 
     .auth-container input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-bottom: 15px;
       background-color: #0e0e0e;
       border: 1px solid #6dc4f3;
       color: #a4e6ff;
       border-radius: 5px;
+      font-size: 16px;
     }
 
     .auth-container button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background-color: #0e0e0e;
       border: 1px solid #6dc4f3;
       color: #6dc4f3;
       cursor: pointer;
+      font-size: 16px;
       transition: 0.3s;
     }
 
@@ -64,20 +68,38 @@
     .auth-container a:hover {
       text-decoration: underline;
     }
+
+    @media (max-width: 600px) {
+      .auth-container {
+        margin: 30px 15px;
+        padding: 25px 15px;
+      }
+
+      .auth-container h2 {
+        font-size: 22px;
+      }
+
+      .auth-container input,
+      .auth-container button {
+        font-size: 15px;
+        padding: 10px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="auth-container">
     <h2>Вход</h2>
     <form action="/login" method="POST">
-      <input name="login" placeholder="Логин" required>
+      <input name="login" placeholder="Логин" required autofocus>
       <input type="password" name="password" placeholder="Пароль" required>
       <input name="nickname" placeholder="Ник в чате" required>
       <button>Войти</button>
     </form>
     <div class="links">
-      <p>Ещё нет аккаунта?<br>
-      <a href="/register">Зарегистрироваться</a></p>
+      <p>Нет аккаунта?<br>
+        <a href="/register">Зарегистрироваться</a>
+      </p>
     </div>
   </div>
 </body>
