@@ -25,21 +25,27 @@ io.use(sharedSession(expressSession));
 const users = {};
 
 //
-// ✅ Добавлен маршрут GET для /login
+// 📌 Показ страницы входа
 //
 app.get("/login", (req, res) => {
   res.sendFile(__dirname + "/public/login.html");
 });
 
+//
+// 📌 Показ страницы регистрации
+//
 app.get("/register", (req, res) => {
   res.sendFile(__dirname + "/public/register.html");
 });
 
+//
+// 📌 Регистрация
+//
 app.post("/register", async (req, res) => {
-  const { login, password, confirm, nickname } = req.body; // ← исправлено: confirm вместо repeat
+  const { login, password, repeat, nickname } = req.body;
 
   if (users[login]) return res.send("❌ Такой логин уже есть");
-  if (password !== confirm) return res.send("❌ Пароли не совпадают");
+  if (password !== repeat) return res.send("❌ Пароли не совпадают");
 
   const hash = await bcrypt.hash(password, 10);
   users[login] = hash;
@@ -50,6 +56,9 @@ app.post("/register", async (req, res) => {
   res.redirect("/chat");
 });
 
+//
+// 📌 Вход
+//
 app.post("/login", async (req, res) => {
   const { login, password, nickname } = req.body;
   const hash = users[login];
@@ -63,17 +72,26 @@ app.post("/login", async (req, res) => {
   res.redirect("/chat");
 });
 
+//
+// 📌 Страница чата
+//
 app.get("/chat", (req, res) => {
   if (!req.session.user) return res.redirect("/");
   res.sendFile(__dirname + "/public/chat.html");
 });
 
+//
+// 📌 Выход
+//
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/");
   });
 });
 
+//
+// 📡 Socket.IO
+//
 io.on("connection", (socket) => {
   const nickname = socket.handshake.session.nickname || "Гость";
   onlineUsers.set(socket.id, nickname);
