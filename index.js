@@ -1,5 +1,6 @@
 const messages = [];
 const onlineUsers = new Map();
+
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
@@ -8,24 +9,21 @@ const { Server } = require("socket.io");
 const sharedSession = require("express-socket.io-session");
 const fs = require("fs");
 const path = require("path");
+const { Pool } = require("pg"); // 🔌 Supabase
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const usersFile = path.join(__dirname, "users.json");
-let users = {};
+// 🌐 Supabase подключение
+const pool = new Pool({
+  connectionString: "postgresql://postgres:Valer4k777@db.lkuscpoliusttczzcnxc.supabase.co:5432/postgres"
+});
 
-// 🔐 Загружаем пользователей
-if (fs.existsSync(usersFile)) {
-  try {
-    users = JSON.parse(fs.readFileSync(usersFile, "utf8"));
-    console.log("📖 users.json загружен");
-  } catch (err) {
-    console.error("⚠️ Ошибка чтения users.json:", err);
-    users = {};
-  }
-}
+// 🔍 Проверка подключения
+pool.query("SELECT NOW()")
+  .then(() => console.log("🟢 Supabase подключение успешно"))
+  .catch(err => console.error("🔴 Ошибка подключения к Supabase:", err));
 
 // 🔒 Сессия
 const expressSession = session({
@@ -66,16 +64,6 @@ app.post("/register", async (req, res) => {
   const activeNicknames = Array.from(onlineUsers.values());
 
   try {
-    let currentUsers = {};
-    if (fs.existsSync(usersFile)) {
-      currentUsers = JSON.parse(fs.readFileSync(usersFile, "utf8"));
-    }
-
-    if (currentUsers[login]) {
-      console.log("⛔ Логин уже занят:", login);
-      return res.sendFile(__dirname + "/public/error.html");
-    }
-
     if (password !== repeat) {
       console.log("⛔ Пароли не совпадают");
       return res.sendFile(__dirname + "/public/error.html");
@@ -86,17 +74,21 @@ app.post("/register", async (req, res) => {
       return res.sendFile(__dirname + "/public/error.html");
     }
 
+    const check = await pool.query("SELECT login FROM users WHERE login = $1", [login]);
+    if (check.rows.length > 0) {
+      console.log("⛔ Логин уже занят:", login);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
     const hash = await bcrypt.hash(password, 10);
-    currentUsers[login] = hash;
-
-    fs.writeFileSync(usersFile, JSON.stringify(currentUsers, null, 2));
-    console.log("✅ Пользователь сохранён:", login);
-
-    users = currentUsers;
+    await pool.query(
+      "INSERT INTO users (login, password_hash, nickname) VALUES ($1, $2, $3)",
+      [login, hash, nickname]
+    );
+    console.log("📦 Supabase запись выполнена:", login);
 
     req.session.user = login;
     req.session.nickname = nickname || "Гость";
-
     logAction(`🔐 Зарегистрировался: ${login} / Ник: ${req.session.nickname}`);
     res.redirect("/chat");
   } catch (err) {
@@ -111,9 +103,16 @@ app.post("/login", async (req, res) => {
   const activeNicknames = Array.from(onlineUsers.values());
 
   try {
-    const hash = users[login];
-    if (!hash || !(await bcrypt.compare(password, hash))) {
-      console.log("⛔ Неверный логин или пароль");
+    const result = await pool.query("SELECT password_hash FROM users WHERE login = $1", [login]);
+    if (result.rows.length === 0) {
+      console.log("⛔ Неверный логин:", login);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    const { password_hash } = result.rows[0];
+    const match = await bcrypt.compare(password, password_hash);
+    if (!match) {
+      console.log("⛔ Неверный пароль");
       return res.sendFile(__dirname + "/public/error.html");
     }
 
@@ -124,7 +123,6 @@ app.post("/login", async (req, res) => {
 
     req.session.user = login;
     req.session.nickname = nickname || "Гость";
-
     logAction(`✅ Вошёл: ${login} / Ник: ${req.session.nickname}`);
     res.redirect("/chat");
   } catch (err) {
