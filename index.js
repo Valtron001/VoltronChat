@@ -15,9 +15,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// 🌐 Supabase подключение
+// 🌐 Supabase IPv4 подключение
 const pool = new Pool({
-  connectionString: "postgresql://postgres:Valer4k777@db.lkuscpoliusttczzcnxc.supabase.co:5432/postgres"
+  host: "db.lkuscpoliusttczzcnxc.supabase.co",
+  port: 5432,
+  user: "postgres",
+  password: "Valer4k777",
+  database: "postgres",
+  ssl: { rejectUnauthorized: false }
 });
 
 // 🔍 Проверка подключения
@@ -58,7 +63,7 @@ app.get("/chat", (req, res) => {
   res.sendFile(__dirname + "/public/chat.html");
 });
 
-// 📌 Регистрация
+// 📌 Glow-регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
   const activeNicknames = Array.from(onlineUsers.values());
