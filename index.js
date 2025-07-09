@@ -16,17 +16,18 @@ const io = new Server(server);
 const usersFile = path.join(__dirname, "users.json");
 let users = {};
 
-// 🧠 Загрузка сохранённых пользователей
+// 🔐 Загружаем пользователей
 if (fs.existsSync(usersFile)) {
   try {
     users = JSON.parse(fs.readFileSync(usersFile, "utf8"));
+    console.log("📖 users.json загружен");
   } catch (err) {
     console.error("⚠️ Ошибка чтения users.json:", err);
     users = {};
   }
 }
 
-// 🔒 Настройка сессии
+// 🔒 Сессия
 const expressSession = session({
   secret: "voltronSecretKey",
   resave: false,
@@ -39,7 +40,7 @@ app.use(express.static("public"));
 app.use(expressSession);
 io.use(sharedSession(expressSession));
 
-// 📒 Функция логирования
+// 📝 Лог действий
 function logAction(text) {
   const line = `${new Date().toISOString()} — ${text}\n`;
   fs.appendFileSync("logs.txt", line);
@@ -54,26 +55,44 @@ app.get("/register", (req, res) => {
   res.sendFile(__dirname + "/public/register.html");
 });
 
+app.get("/chat", (req, res) => {
+  if (!req.session.user) return res.redirect("/");
+  res.sendFile(__dirname + "/public/chat.html");
+});
+
 // 📌 Регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
-
   const activeNicknames = Array.from(onlineUsers.values());
-  if (users[login]) return res.sendFile(__dirname + "/public/error.html");
-  if (password !== repeat) return res.sendFile(__dirname + "/public/error.html");
-  if (activeNicknames.includes(nickname)) return res.sendFile(__dirname + "/public/error.html");
 
   try {
-    const hash = await bcrypt.hash(password, 10);
-
-    let existingUsers = {};
+    let currentUsers = {};
     if (fs.existsSync(usersFile)) {
-      existingUsers = JSON.parse(fs.readFileSync(usersFile, "utf8"));
+      currentUsers = JSON.parse(fs.readFileSync(usersFile, "utf8"));
     }
 
-    existingUsers[login] = hash;
-    fs.writeFileSync(usersFile, JSON.stringify(existingUsers, null, 2));
-    users = existingUsers;
+    if (currentUsers[login]) {
+      console.log("⛔ Логин уже занят:", login);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    if (password !== repeat) {
+      console.log("⛔ Пароли не совпадают");
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    if (activeNicknames.includes(nickname)) {
+      console.log("⛔ Ник уже используется:", nickname);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    currentUsers[login] = hash;
+
+    fs.writeFileSync(usersFile, JSON.stringify(currentUsers, null, 2));
+    console.log("✅ Пользователь сохранён:", login);
+
+    users = currentUsers;
 
     req.session.user = login;
     req.session.nickname = nickname || "Гость";
@@ -89,28 +108,29 @@ app.post("/register", async (req, res) => {
 // 📌 Вход
 app.post("/login", async (req, res) => {
   const { login, password, nickname } = req.body;
-  const hash = users[login];
   const activeNicknames = Array.from(onlineUsers.values());
 
-  if (!hash || !(await bcrypt.compare(password, hash))) {
-    return res.sendFile(__dirname + "/public/error.html");
+  try {
+    const hash = users[login];
+    if (!hash || !(await bcrypt.compare(password, hash))) {
+      console.log("⛔ Неверный логин или пароль");
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    if (activeNicknames.includes(nickname)) {
+      console.log("⛔ Ник уже используется:", nickname);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    req.session.user = login;
+    req.session.nickname = nickname || "Гость";
+
+    logAction(`✅ Вошёл: ${login} / Ник: ${req.session.nickname}`);
+    res.redirect("/chat");
+  } catch (err) {
+    console.error("❌ Ошибка входа:", err);
+    res.sendFile(__dirname + "/public/error.html");
   }
-
-  if (activeNicknames.includes(nickname)) {
-    return res.sendFile(__dirname + "/public/error.html");
-  }
-
-  req.session.user = login;
-  req.session.nickname = nickname || "Гость";
-
-  logAction(`✅ Вошёл: ${login} / Ник: ${req.session.nickname}`);
-  res.redirect("/chat");
-});
-
-// 📌 Чат
-app.get("/chat", (req, res) => {
-  if (!req.session.user) return res.redirect("/");
-  res.sendFile(__dirname + "/public/chat.html");
 });
 
 // 📌 Выход
@@ -127,7 +147,6 @@ io.on("connection", (socket) => {
   onlineUsers.set(socket.id, nickname);
   socket.emit("your nickname", nickname);
   io.emit("online users", Array.from(onlineUsers.values()));
-
   console.log(`🟢 Подключился: ${nickname}`);
   logAction(`🟢 Socket подключён: ${nickname}`);
 
