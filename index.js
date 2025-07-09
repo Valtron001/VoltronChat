@@ -9,7 +9,7 @@ const { Server } = require("socket.io");
 const sharedSession = require("express-socket.io-session");
 const fs = require("fs");
 const path = require("path");
-const { Pool } = require("pg"); // 🔌 Supabase
+const { Pool } = require("pg");
 
 const app = express();
 const server = http.createServer(app);
@@ -25,7 +25,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// 🔍 Проверка подключения
+// 🔍 Тест подключения
 pool.query("SELECT NOW()")
   .then(() => console.log("🟢 Supabase подключение успешно"))
   .catch(err => console.error("🔴 Ошибка подключения к Supabase:", err));
@@ -35,7 +35,7 @@ const expressSession = session({
   secret: "voltronSecretKey",
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // сутки
+  cookie: { maxAge: 24 * 60 * 60 * 1000 }
 });
 
 app.use(express.urlencoded({ extended: true }));
@@ -63,7 +63,7 @@ app.get("/chat", (req, res) => {
   res.sendFile(__dirname + "/public/chat.html");
 });
 
-// 📌 Glow-регистрация
+// 📌 Регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
   const activeNicknames = Array.from(onlineUsers.values());
@@ -90,7 +90,7 @@ app.post("/register", async (req, res) => {
       "INSERT INTO users (login, password_hash, nickname) VALUES ($1, $2, $3)",
       [login, hash, nickname]
     );
-    console.log("📦 Supabase запись выполнена:", login);
+    console.log("📦 Пользователь записан в Supabase:", login);
 
     req.session.user = login;
     req.session.nickname = nickname || "Гость";
