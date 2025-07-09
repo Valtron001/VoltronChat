@@ -9,7 +9,7 @@ const { Server } = require("socket.io");
 const sharedSession = require("express-socket.io-session");
 const fs = require("fs");
 const path = require("path");
-const supabase = require("./supabase"); // ⬅️ SDK импорт
+const supabase = require("./supabase"); // SDK импорт
 
 const app = express();
 const server = http.createServer(app);
@@ -46,37 +46,58 @@ app.get("/chat", (req, res) => {
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
   const activeNicknames = Array.from(onlineUsers.values());
+  console.log("📥 Данные формы:", { login, password, repeat, nickname });
+
+  // Проверка паролей
+  if (password !== repeat) {
+    console.log("⛔ Пароли не совпадают");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
+
+  // Проверка ника в онлайне
+  if (activeNicknames.includes(nickname)) {
+    console.log("⛔ Ник уже используется в чате:", nickname);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   try {
-    if (password !== repeat || activeNicknames.includes(nickname)) {
-      console.log("⛔ Ошибка ввода");
-      return res.sendFile(__dirname + "/public/error.html");
-    }
-
-    const { data: existingUser } = await supabase
+    // Проверка логина
+    const { data: existingUser, error: selectError } = await supabase
       .from("users")
-      .select("*")
+      .select("login")
       .eq("login", login)
       .single();
 
-    if (existingUser) {
-      console.log("⛔ Логин занят:", login);
+    if (selectError) {
+      console.error("❌ Supabase SELECT:", selectError.message);
       return res.sendFile(__dirname + "/public/error.html");
     }
 
+    if (existingUser) {
+      console.log("⛔ Логин уже занят:", login);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    // Хеширование пароля
     const hash = await bcrypt.hash(password, 10);
-    const { error } = await supabase
+
+    // Вставка нового пользователя
+    const { error: insertError } = await supabase
       .from("users")
       .insert([{ login, password_hash: hash, nickname }]);
 
-    if (error) throw error;
+    if (insertError) {
+      console.error("❌ Supabase INSERT:", insertError.message);
+      return res.sendFile(__dirname + "/public/error.html");
+    }
 
     req.session.user = login;
     req.session.nickname = nickname || "Гость";
     logAction(`🔐 Зарегистрировался: ${login} / Ник: ${req.session.nickname}`);
+    console.log("✅ Регистрация прошла:", login);
     res.redirect("/chat");
   } catch (err) {
-    console.error("❌ Supabase ошибка:", err);
+    console.error("❌ Исключение регистрации:", err.message);
     res.sendFile(__dirname + "/public/error.html");
   }
 });
@@ -85,22 +106,28 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { login, password, nickname } = req.body;
   const activeNicknames = Array.from(onlineUsers.values());
+  console.log("🔑 Вход:", { login, nickname });
 
   try {
-    const { data: user } = await supabase
+    const { data: user, error } = await supabase
       .from("users")
       .select("password_hash")
       .eq("login", login)
       .single();
 
-    if (!user) {
+    if (error || !user) {
       console.log("⛔ Логин не найден:", login);
       return res.sendFile(__dirname + "/public/error.html");
     }
 
     const match = await bcrypt.compare(password, user.password_hash);
-    if (!match || activeNicknames.includes(nickname)) {
-      console.log("⛔ Неверный пароль или ник уже используется");
+    if (!match) {
+      console.log("⛔ Неверный пароль");
+      return res.sendFile(__dirname + "/public/error.html");
+    }
+
+    if (activeNicknames.includes(nickname)) {
+      console.log("⛔ Ник уже используется в чате:", nickname);
       return res.sendFile(__dirname + "/public/error.html");
     }
 
@@ -109,7 +136,7 @@ app.post("/login", async (req, res) => {
     logAction(`✅ Вошёл: ${login} / Ник: ${req.session.nickname}`);
     res.redirect("/chat");
   } catch (err) {
-    console.error("❌ Supabase ошибка:", err);
+    console.error("❌ Ошибка входа:", err.message);
     res.sendFile(__dirname + "/public/error.html");
   }
 });
