@@ -3,10 +3,12 @@ let activePrivate = "";
 
 const socket = io();
 
+// ✅ Получаем свой ник
 socket.on("your nickname", nick => {
   currentUser = nick;
 });
 
+// ✅ Список онлайн-юзеров
 socket.on("online users", users => {
   const ul = document.getElementById("online-users");
   ul.innerHTML = "";
@@ -21,6 +23,7 @@ socket.on("online users", users => {
   });
 });
 
+// ✅ Общий чат
 socket.on("chat message", msg => {
   const div = document.getElementById("chat-history");
   const line = document.createElement("div");
@@ -28,6 +31,7 @@ socket.on("chat message", msg => {
   div.appendChild(line);
 });
 
+// ✅ Личное сообщение: обновление и уведомление
 socket.on("private notify", ({ from, text }) => {
   const list = document.getElementById("private-notify");
   const exists = [...list.children].some(li => li.textContent === from);
@@ -38,9 +42,15 @@ socket.on("private notify", ({ from, text }) => {
     list.appendChild(li);
   }
 
-  // Всплывающая анимация или сигнал можно добавить здесь
+  // Если личка открыта — покажем входящее
+  if (activePrivate === from) {
+    const line = document.createElement("div");
+    line.textContent = `${from}: ${text}`;
+    document.getElementById("private-history").appendChild(line);
+  }
 });
 
+// ✅ Отправка общего сообщения
 function sendMessage() {
   const input = document.getElementById("chat-input");
   const msg = input.value.trim();
@@ -50,20 +60,15 @@ function sendMessage() {
   }
 }
 
+// ✅ Открытие лички
 function openPrivateChat(nick) {
   activePrivate = nick;
-  document.querySelector(".chat-container").style.display = "none";
-  document.getElementById("private-chat").style.display = "block";
+  switchScreen("private");
   document.getElementById("private-title").textContent = `Личка с ${nick}`;
   loadPrivateHistory();
 }
 
-function closePrivateChat() {
-  activePrivate = "";
-  document.querySelector(".chat-container").style.display = "flex";
-  document.getElementById("private-chat").style.display = "none";
-}
-
+// ✅ Отправка личного сообщения
 function sendPrivateMessage() {
   const input = document.getElementById("private-input");
   const text = input.value.trim();
@@ -81,6 +86,7 @@ function sendPrivateMessage() {
   input.value = "";
 }
 
+// ✅ Загрузка истории лички из Supabase
 function loadPrivateHistory() {
   fetch("/private/inbox")
     .then(r => r.json())
@@ -98,3 +104,37 @@ function loadPrivateHistory() {
         });
     });
 }
+
+// ✅ Переключение экранов по вкладке
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => switchScreen(tab.dataset.screen));
+});
+
+function switchScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => {
+    s.classList.toggle("active", s.id === "screen-" + name);
+  });
+
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.screen === name);
+  });
+}
+
+// ✅ Переключение свайпом пальцем
+let touchStartX = null;
+const screens = ["online", "chat", "private"];
+
+document.getElementById("screens").addEventListener("touchstart", (e) => {
+  touchStartX = e.changedTouches[0].clientX;
+});
+
+document.getElementById("screens").addEventListener("touchend", (e) => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) < 50) return;
+
+  let current = screens.find(s => document.getElementById("screen-" + s).classList.contains("active"));
+  let index = screens.indexOf(current);
+
+  if (dx < 0 && index < screens.length - 1) switchScreen(screens[index + 1]); // свайп влево
+  else if (dx > 0 && index > 0) switchScreen(screens[index - 1]); // свайп вправо
+});

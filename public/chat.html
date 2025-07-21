@@ -4,42 +4,45 @@
   <meta charset="UTF-8">
   <title>Voltron Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/socket.io/socket.io.js"></script>
   <link rel="stylesheet" href="/style.css">
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
   <div class="logo-block">
-    <img src="/images/logo.png" alt="Voltron Logo" class="logo-img">
+    <img src="/images/logo.png" alt="Voltron" class="logo-img">
   </div>
 
-  <div class="chat-container">
-    <div class="sidebar-left">
-      <h3>🟢 В сети:</h3>
+  <!-- 🔹 Вкладки навигации -->
+  <div class="tab-bar">
+    <button class="tab active" data-screen="online">🟢</button>
+    <button class="tab" data-screen="chat">💬</button>
+    <button class="tab" data-screen="private">✉️</button>
+  </div>
+
+  <!-- 🔹 Экраны -->
+  <div class="screen-container" id="screens">
+    <section class="screen" id="screen-online">
+      <h3>Пользователи онлайн</h3>
       <ul id="online-users"></ul>
-      <form action="/logout" method="POST" style="margin-top: 20px;">
-        <button>Выйти из чата</button>
+      <form action="/logout" method="POST" style="margin-top:20px;">
+        <button>Выйти</button>
       </form>
-    </div>
+    </section>
 
-    <div class="main-chat">
-      <h3 id="chat-title">Общий чат</h3>
+    <section class="screen" id="screen-chat">
+      <h3>Общий чат</h3>
       <div id="chat-history"></div>
-      <input id="chat-input" autocomplete="off" placeholder="Введите сообщение...">
+      <input id="chat-input" placeholder="Введите сообщение">
       <button onclick="sendMessage()">Отправить</button>
-    </div>
+    </section>
 
-    <div class="sidebar-right">
-      <h3>Личные сообщения</h3>
+    <section class="screen" id="screen-private">
+      <h3 id="private-title">Личка</h3>
       <ul id="private-notify"></ul>
-    </div>
-  </div>
-
-  <div id="private-chat" style="display:none; padding:20px;">
-    <button onclick="closePrivateChat()">← Назад</button>
-    <h3 id="private-title">Личка</h3>
-    <div id="private-history" style="margin: 15px 0;"></div>
-    <input id="private-input" placeholder="Напиши в личку...">
-    <button onclick="sendPrivateMessage()">Отправить</button>
+      <div id="private-history"></div>
+      <input id="private-input" placeholder="Напиши в личку...">
+      <button onclick="sendPrivateMessage()">Отправить</button>
+    </section>
   </div>
 
   <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>
