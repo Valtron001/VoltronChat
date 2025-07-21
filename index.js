@@ -46,55 +46,52 @@ app.get("/chat", (req, res) => {
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
   const activeNicknames = Array.from(onlineUsers.values());
-  console.log("📥 Данные формы:", { login, password, repeat, nickname });
+  console.log("📥 Получены данные:", { login, password, repeat, nickname });
 
-  // Проверка паролей
   if (password !== repeat) {
     console.log("⛔ Пароли не совпадают");
     return res.sendFile(__dirname + "/public/error.html");
   }
 
-  // Проверка ника в онлайне
   if (activeNicknames.includes(nickname)) {
     console.log("⛔ Ник уже используется в чате:", nickname);
     return res.sendFile(__dirname + "/public/error.html");
   }
 
   try {
-    // Проверка логина
-    const { data: existingUser, error: selectError } = await supabase
+    const { data: users, error: selectError } = await supabase
       .from("users")
       .select("login")
       .eq("login", login)
-      .single();
+      .limit(1);
 
     if (selectError) {
-      console.error("❌ Supabase SELECT:", selectError.message);
+      console.error("❌ Supabase SELECT error:", selectError.message);
       return res.sendFile(__dirname + "/public/error.html");
     }
+
+    const existingUser = users && users.length > 0 ? users[0] : null;
 
     if (existingUser) {
       console.log("⛔ Логин уже занят:", login);
       return res.sendFile(__dirname + "/public/error.html");
     }
 
-    // Хеширование пароля
     const hash = await bcrypt.hash(password, 10);
 
-    // Вставка нового пользователя
     const { error: insertError } = await supabase
       .from("users")
       .insert([{ login, password_hash: hash, nickname }]);
 
     if (insertError) {
-      console.error("❌ Supabase INSERT:", insertError.message);
+      console.error("❌ Supabase INSERT error:", insertError.message);
       return res.sendFile(__dirname + "/public/error.html");
     }
 
     req.session.user = login;
     req.session.nickname = nickname || "Гость";
     logAction(`🔐 Зарегистрировался: ${login} / Ник: ${req.session.nickname}`);
-    console.log("✅ Регистрация прошла:", login);
+    console.log("✅ Пользователь добавлен в Supabase:", login);
     res.redirect("/chat");
   } catch (err) {
     console.error("❌ Исключение регистрации:", err.message);
