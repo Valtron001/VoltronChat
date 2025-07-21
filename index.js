@@ -9,13 +9,12 @@ const { Server } = require("socket.io");
 const sharedSession = require("express-socket.io-session");
 const fs = require("fs");
 const path = require("path");
-const supabase = require("./supabase"); // SDK импорт
+const supabase = require("./supabase");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// 🔒 Сессия
 const expressSession = session({
   secret: "voltronSecretKey",
   resave: false,
@@ -28,7 +27,6 @@ app.use(express.static("public"));
 app.use(expressSession);
 io.use(sharedSession(expressSession));
 
-// 📝 Лог действий
 function logAction(text) {
   const line = `${new Date().toISOString()} — ${text}\n`;
   fs.appendFileSync("logs.txt", line);
@@ -136,6 +134,51 @@ app.post("/login", async (req, res) => {
     console.error("❌ Ошибка входа:", err.message);
     res.sendFile(__dirname + "/public/error.html");
   }
+});
+
+// 📌 Личная переписка: отправка
+app.post("/private/send", async (req, res) => {
+  const { to, text } = req.body;
+  const from = req.session.user;
+  const timestamp = Date.now();
+
+  const { error } = await supabase
+    .from("private_messages")
+    .insert([{ sender: from, recipient: to, message: text, timestamp }]);
+
+  if (error) {
+    console.error("❌ Личка не отправлена:", error.message);
+    return res.status(500).send("Ошибка");
+  }
+
+  for (let [id, nick] of onlineUsers.entries()) {
+    if (nick === to) {
+      io.to(id).emit("private notify", { from, text, timestamp });
+    }
+  }
+
+  console.log("✅ Личка от", from, "к", to, ":", text);
+  res.sendStatus(200);
+});
+
+// 📌 Личная переписка: загрузка входящих
+app.get("/private/inbox", async (req, res) => {
+  const user = req.session.user;
+  const cutoff = Date.now() - 86400000;
+
+  const { data, error } = await supabase
+    .from("private_messages")
+    .select("*")
+    .eq("recipient", user)
+    .gt("timestamp", cutoff)
+    .order("timestamp", { ascending: true });
+
+  if (error) {
+    console.error("❌ Личка не загружена:", error.message);
+    return res.status(500).send("Ошибка загрузки");
+  }
+
+  res.json(data);
 });
 
 // 📌 Выход

@@ -5,260 +5,44 @@
   <title>Voltron Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body {
-      background-color: #121212;
-      color: #a4e6ff;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 15px;
-      box-shadow: inset 0 0 200px #80d0ff20;
-    }
-
-    .logo-block {
-      width: 240px;
-      margin: 10px 0 15px 0;
-    }
-
-    .logo-img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 30px;
-      max-width: 1100px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-    }
-
-    .sidebar, .chat-panel {
-      background-color: #1a1a1a;
-      border-radius: 8px;
-      box-shadow: 0 0 15px #80d0ff40;
-      padding: 15px;
-    }
-
-    .sidebar {
-      width: 240px;
-      height: 85vh;
-      overflow-y: auto;
-    }
-
-    .chat-panel {
-      flex: 1;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 600px;
-    }
-
-    .chat-window {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 15px;
-      padding-right: 5px;
-    }
-
-    .chat-window ul {
-      padding: 0;
-      list-style: none;
-    }
-
-    .sidebar ul li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px;
-      border-radius: 5px;
-      transition: 0.2s;
-    }
-
-    .sidebar ul li:hover {
-      background-color: #2a2a2a;
-      cursor: pointer;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #6dc4f3;
-      border-radius: 50%;
-    }
-
-    .nickname {
-      font-weight: bold;
-      color: #80d0ff;
-    }
-
-    li.message-item {
-      margin: 6px 0;
-      padding: 8px;
-      background: #1f1f1f;
-      border-radius: 5px;
-      color: #a4e6ff;
-    }
-
-    form {
-      display: flex;
-      gap: 10px;
-    }
-
-    input {
-      flex: 1;
-      padding: 10px;
-      background-color: #0e0e0e;
-      border: 1px solid #6dc4f3;
-      color: #a4e6ff;
-      border-radius: 4px;
-    }
-
-    button {
-      padding: 10px 14px;
-      background-color: #0e0e0e;
-      color: #6dc4f3;
-      border: 1px solid #6dc4f3;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background-color: #1a1a1a;
-      box-shadow: 0 0 10px #6dc4f3;
-    }
-
-    @media (max-width: 700px) {
-      .wrapper {
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .sidebar {
-        width: 100%;
-        height: auto;
-      }
-
-      .chat-panel {
-        max-width: 100%;
-        height: auto;
-      }
-
-      input, button {
-        font-size: 15px;
-      }
-
-      .chat-window {
-        max-height: 300px;
-      }
-
-      .logo-block {
-        width: 100%;
-        margin: 10px auto 15px auto;
-        text-align: center;
-      }
-
-      .logo-img {
-        max-width: 150px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="logo-block">
     <img src="/images/logo.png" alt="Voltron Logo" class="logo-img">
   </div>
 
-  <div class="wrapper">
-    <div class="sidebar">
-      <h4>🟢 В сети:</h4>
+  <div class="chat-container">
+    <div class="sidebar-left">
+      <h3>🟢 В сети:</h3>
       <ul id="online-users"></ul>
       <form action="/logout" method="POST" style="margin-top: 20px;">
         <button>Выйти из чата</button>
       </form>
     </div>
 
-    <div class="chat-panel">
-      <div class="chat-window">
-        <ul id="messages"></ul>
-      </div>
-      <form id="form">
-        <input id="m" autocomplete="off" placeholder="Введите сообщение..." />
-        <button>Отправить</button>
-      </form>
+    <div class="main-chat">
+      <h3 id="chat-title">Общий чат</h3>
+      <div id="chat-history"></div>
+      <input id="chat-input" autocomplete="off" placeholder="Введите сообщение...">
+      <button onclick="sendMessage()">Отправить</button>
+    </div>
+
+    <div class="sidebar-right">
+      <h3>Личные сообщения</h3>
+      <ul id="private-notify"></ul>
     </div>
   </div>
 
+  <div id="private-chat" style="display:none; padding:20px;">
+    <button onclick="closePrivateChat()">← Назад</button>
+    <h3 id="private-title">Личка</h3>
+    <div id="private-history" style="margin: 15px 0;"></div>
+    <input id="private-input" placeholder="Напиши в личку...">
+    <button onclick="sendPrivateMessage()">Отправить</button>
+  </div>
+
   <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>
-
-  <script>
-    const socket = io();
-    let myNickname = null;
-
-    socket.on("your nickname", (nick) => {
-      myNickname = nick;
-    });
-
-    const form = document.getElementById("form");
-    const input = document.getElementById("m");
-    const messages = document.getElementById("messages");
-    const onlineUsersBlock = document.getElementById("online-users");
-
-    socket.on("online users", (users) => {
-      onlineUsersBlock.innerHTML = "";
-      users.forEach(name => {
-        const li = document.createElement("li");
-        const dot = `<span class="status-dot"></span>`;
-        const label = name === myNickname
-          ? `<span class="nickname">${name} (вы)</span>`
-          : `<span>${name}</span>`;
-        li.innerHTML = `${dot} ${label}`;
-        onlineUsersBlock.appendChild(li);
-      });
-    });
-
-    socket.on("chat history", (history) => {
-      history.forEach(msg => renderMessage(msg));
-      messages.scrollTop = messages.scrollHeight;
-    });
-
-    socket.on("chat message", (msg) => {
-      renderMessage(msg);
-      if (!msg.text.startsWith(myNickname + ":")) {
-        document.getElementById("notif").play();
-      }
-    });
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const msg = input.value.trim();
-      if (msg) {
-        socket.emit("chat message", msg);
-        input.value = "";
-      }
-    });
-
-    function renderMessage(msg) {
-      const item = document.createElement("li");
-      item.classList.add("message-item");
-      const parts = msg.text.split(":");
-      if (parts.length >= 2) {
-        const nicknameSpan = document.createElement("span");
-        nicknameSpan.textContent = parts.shift().trim() + ": ";
-        nicknameSpan.classList.add("nickname");
-        item.appendChild(nicknameSpan);
-        item.appendChild(document.createTextNode(parts.join(":").trim()));
-      } else {
-        item.textContent = msg.text;
-      }
-      messages.appendChild(item);
-      messages.scrollTop = messages.scrollHeight;
-    }
-  </script>
+  <script src="/chat.js"></script>
 </body>
 </html>

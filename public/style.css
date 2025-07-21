@@ -1,0 +1,32 @@
+.chat-container {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+}
+
+.sidebar-left, .sidebar-right {
+  width: 200px;
+  background: #1a1a1a;
+  color: #a4e6ff;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.main-chat {
+  flex: 1;
+  background: #0e0e0e;
+  color: #a4e6ff;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#private-chat {
+  padding: 15px;
+  background: #121212;
+  color: #6dc4f3;
+}
+
+.user:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
