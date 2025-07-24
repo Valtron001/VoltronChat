@@ -12,14 +12,13 @@
     <img src="/images/logo.png" alt="Voltron" class="logo-img">
   </div>
 
-  <!-- 🔹 Вкладки навигации -->
+  <!-- 🔹 Мобильная версия — вкладки -->
   <div class="tab-bar">
     <button class="tab active" data-screen="online">🟢</button>
     <button class="tab" data-screen="chat">💬</button>
     <button class="tab" data-screen="private">✉️</button>
   </div>
 
-  <!-- 🔹 Экраны -->
   <div class="screen-container" id="screens">
     <section class="screen" id="screen-online">
       <h3>Пользователи онлайн</h3>
@@ -43,6 +42,32 @@
       <input id="private-input" placeholder="Напиши в личку...">
       <button id="private-send">Отправить</button>
     </section>
+  </div>
+
+  <!-- 💻 Десктопная версия -->
+  <div class="chat-container">
+    <aside class="sidebar-left">
+      <h3>🟢 Онлайн</h3>
+      <ul id="online-users"></ul>
+      <form action="/logout" method="POST" style="margin-top:20px;">
+        <button>Выйти</button>
+      </form>
+    </aside>
+
+    <main class="main-chat">
+      <h3 id="chat-title">💬 Общий чат</h3>
+      <div id="chat-history"></div>
+      <input id="chat-input" placeholder="Введите сообщение">
+      <button id="chat-send">Отправить</button>
+    </main>
+
+    <aside class="sidebar-right">
+      <h3>✉️ Личка</h3>
+      <ul id="private-notify"></ul>
+      <div id="private-history"></div>
+      <input id="private-input" placeholder="Напиши в личку...">
+      <button id="private-send">Отправить</button>
+    </aside>
   </div>
 
   <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>

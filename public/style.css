@@ -1,3 +1,4 @@
+/* 🔹 Общие стили */
 body {
   background-color: #121212;
   color: #a4e6ff;
@@ -7,18 +8,27 @@ body {
   box-shadow: inset 0 0 150px #6dc4f320;
 }
 
+/* 🔹 Центровка на десктопе */
+@media (min-width: 751px) {
+  body {
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+}
+
+/* 🔹 Лого */
 .logo-block {
   width: 120px;
   margin: 10px auto 20px auto;
   text-align: center;
 }
-
 .logo-img {
   width: 100%;
   height: auto;
   display: block;
 }
 
+/* 🔹 Десктопный макет */
 .chat-container {
   display: flex;
   gap: 15px;
@@ -26,7 +36,9 @@ body {
   justify-content: space-between;
 }
 
-.sidebar-left, .sidebar-right {
+/* 🔹 Боковые панели */
+.sidebar-left,
+.sidebar-right {
   width: 220px;
   background: #1a1a1a;
   border-radius: 8px;
@@ -35,7 +47,6 @@ body {
   height: 600px;
   overflow-y: auto;
 }
-
 .sidebar-left h3,
 .sidebar-right h3 {
   margin-top: 0;
@@ -43,6 +54,7 @@ body {
   color: #6dc4f3;
 }
 
+/* 🔹 Списки пользователей */
 #online-users li,
 #private-notify li {
   padding: 6px;
@@ -52,12 +64,12 @@ body {
   cursor: pointer;
   background: #252525;
 }
-
 #online-users li:hover,
 #private-notify li:hover {
   background: #2f2f2f;
 }
 
+/* 🔹 Центральный чат */
 .main-chat {
   flex: 1;
   background: #0e0e0e;
@@ -69,25 +81,21 @@ body {
   justify-content: space-between;
   height: 600px;
 }
-
 #chat-title {
   color: #6dc4f3;
   margin-top: 0;
 }
-
 #chat-history {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 10px;
 }
-
 #chat-history div {
   background: #1f1f1f;
   padding: 8px;
   margin: 5px 0;
   border-radius: 5px;
 }
-
 #chat-input {
   width: 100%;
   padding: 10px;
@@ -98,6 +106,7 @@ body {
   margin-bottom: 8px;
 }
 
+/* 🔹 Кнопки */
 button {
   padding: 10px;
   background: #0e0e0e;
@@ -107,12 +116,12 @@ button {
   cursor: pointer;
   transition: 0.3s;
 }
-
 button:hover {
   background: #1a1a1a;
   box-shadow: 0 0 8px #6dc4f3;
 }
 
+/* 🔹 Личка */
 #private-chat {
   background: #121212;
   color: #a4e6ff;
@@ -121,14 +130,12 @@ button:hover {
   max-width: 800px;
   margin: 0 auto;
 }
-
 #private-history div {
   background: #1f1f1f;
   padding: 8px;
   margin: 6px 0;
   border-radius: 5px;
 }
-
 #private-input {
   width: 100%;
   padding: 10px;
@@ -149,7 +156,6 @@ button:hover {
   border-radius: 8px;
   margin-bottom: 10px;
 }
-
 .tab {
   background: none;
   border: none;
@@ -159,7 +165,6 @@ button:hover {
   padding: 8px 12px;
   transition: 0.3s;
 }
-
 .tab.active {
   color: #6dc4f3;
   border-bottom: 2px solid #6dc4f3;
@@ -170,13 +175,11 @@ button:hover {
   overflow: hidden;
   position: relative;
 }
-
 .screen {
   min-height: 400px;
   padding: 15px;
   display: none;
 }
-
 .screen.active {
   display: block;
 }
@@ -186,25 +189,31 @@ button:hover {
   .chat-container {
     display: none;
   }
-
   .screen {
     display: none;
   }
-
   .screen.active {
     display: block;
   }
-
   .tab-bar {
     position: sticky;
     top: 0;
     z-index: 10;
   }
-
   .logo-block {
     width: 90px;
     margin: 10px auto 15px auto;
     text-align: center;
+  }
+}
+
+/* 🔹 Активация десктопного макета */
+@media (min-width: 751px) {
+  .screen-container {
+    display: none;
+  }
+  .chat-container {
+    display: flex;
   }
 }
 
