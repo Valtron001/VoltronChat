@@ -5,22 +5,22 @@ window.onload = () => {
   const socket = io();
   const contacts = new Set();
 
-  // 💡 Выбор нужных элементов
+  // 🧩 Выбор нужных элементов
   const refs = {
     online: document.getElementById(isMobile ? "online-users-mobile" : "online-users-desktop"),
     chatHistory: document.getElementById(isMobile ? "chat-history-mobile" : "chat-history-desktop"),
+    chatInput: document.getElementById(isMobile ? "chat-input-mobile" : "chat-input-desktop"),
+    chatSend: document.getElementById(isMobile ? "chat-send-mobile" : "chat-send-desktop"),
     privateHistory: document.getElementById("private-history-desktop"),
-    privateInput: document.getElementById("private-input"),
-    privateSend: document.getElementById("private-send"),
-    chatInput: document.getElementById("chat-input"),
-    chatSend: document.getElementById("chat-send"),
+    privateInput: document.getElementById("private-input-desktop"),
+    privateSend: document.getElementById("private-send-desktop"),
     chatZone: document.getElementById("desktop-chat-zone"),
     privateZone: document.getElementById("private-zone"),
     privateTitle: document.getElementById("private-title-desktop"),
     savedContacts: document.getElementById("saved-contacts")
   };
 
-  // 🎯 Инициализация: скрыть личку
+  // 🔧 Инициализация лички
   if (!isMobile) {
     refs.privateInput.style.display = "none";
     refs.privateSend.style.display = "none";
@@ -31,7 +31,6 @@ window.onload = () => {
   // 👤 Ваш ник
   socket.on("your nickname", nick => {
     currentUser = nick;
-    console.log("👤 Ваш ник:", currentUser);
   });
 
   // 🟢 Онлайн юзеры
@@ -55,11 +54,9 @@ window.onload = () => {
     refs.chatHistory.appendChild(line);
   });
 
-  // ✉️ Личка пришла
+  // ✉️ Личка
   socket.on("private notify", ({ from, text }) => {
-    if (!contacts.has(from)) {
-      addSavedContact(from);
-    }
+    if (!contacts.has(from)) addSavedContact(from);
     if (activePrivate === from) {
       const line = document.createElement("div");
       line.textContent = `${from}: ${text}`;
@@ -67,7 +64,7 @@ window.onload = () => {
     }
   });
 
-  // 🟦 Отправка общего
+  // 🟦 Отправка в общий чат
   refs.chatSend.addEventListener("click", () => {
     const msg = refs.chatInput.value.trim();
     if (!msg) return;
@@ -92,32 +89,25 @@ window.onload = () => {
         line.textContent = `${currentUser}: ${text}`;
         refs.privateHistory.appendChild(line);
         refs.privateInput.value = "";
-
-        // добавляем, если не было
-        if (!contacts.has(activePrivate)) {
-          addSavedContact(activePrivate);
-        }
-      } else {
-        console.warn("❌ Личка не отправлена");
+        if (!contacts.has(activePrivate)) addSavedContact(activePrivate);
       }
     } catch (err) {
-      console.error("🚫 Ошибка отправки:", err.message);
+      console.error("🚫 Ошибка отправки лички:", err.message);
     }
   });
 
-  // 🧩 Открытие лички с юзером
+  // 💌 Открытие лички
   function openPrivateChat(nick) {
     activePrivate = nick;
 
     if (!isMobile) {
-      // 🔄 переключение зон
       refs.chatZone.style.display = "none";
       refs.privateZone.style.display = "block";
       refs.privateInput.style.display = "block";
       refs.privateSend.style.display = "inline-block";
       refs.privateTitle.textContent = `Личка с ${nick}`;
 
-      // ✨ подсветка
+      // ✨ Подсветка
       document.querySelectorAll(".saved-contact").forEach(c => {
         c.classList.remove("active-contact");
       });
@@ -128,7 +118,7 @@ window.onload = () => {
     loadPrivateHistory();
   }
 
-  // 📦 Загрузка истории
+  // 📦 Загрузка истории лички
   async function loadPrivateHistory() {
     try {
       const res = await fetch("/private/inbox");
@@ -156,11 +146,11 @@ window.onload = () => {
           refs.privateHistory.appendChild(line);
         });
     } catch (err) {
-      console.error("🚫 Ошибка истории лички:", err.message);
+      console.error("🚫 Ошибка загрузки истории:", err.message);
     }
   }
 
-  // 🧠 Добавление карточки в личку
+  // 🧠 Добавление карточки собеседника
   function addSavedContact(nick) {
     contacts.add(nick);
     const card = document.createElement("div");
@@ -170,7 +160,7 @@ window.onload = () => {
     refs.savedContacts.appendChild(card);
   }
 
-  // 📆 Очистка собеседников (временно — вручную)
+  // 📆 Очистка списка раз в 24 часа (временно отключена)
   // setInterval(() => {
   //   contacts.clear();
   //   refs.savedContacts.innerHTML = "";

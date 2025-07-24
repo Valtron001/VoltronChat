@@ -32,16 +32,16 @@
     <section class="screen" id="screen-chat">
       <h3>Общий чат</h3>
       <div id="chat-history-mobile"></div>
-      <input id="chat-input" placeholder="Введите сообщение">
-      <button id="chat-send">Отправить</button>
+      <input id="chat-input-mobile" placeholder="Введите сообщение">
+      <button id="chat-send-mobile">Отправить</button>
     </section>
 
     <section class="screen" id="screen-private">
       <h3 id="private-title">Личка</h3>
       <ul id="private-notify-mobile"></ul>
       <div id="private-history-mobile"></div>
-      <input id="private-input" placeholder="Напиши в личку...">
-      <button id="private-send">Отправить</button>
+      <input id="private-input-mobile" placeholder="Напиши в личку...">
+      <button id="private-send-mobile">Отправить</button>
     </section>
   </div>
 
@@ -56,20 +56,22 @@
     </aside>
 
     <main class="main-chat">
+      <!-- Общий чат -->
       <div id="desktop-chat-zone">
         <h3 id="chat-title">💬 Общий чат</h3>
         <div id="chat-history-desktop"></div>
-        <input id="chat-input" placeholder="Введите сообщение">
-        <button id="chat-send">Отправить</button>
+        <input id="chat-input-desktop" placeholder="Введите сообщение">
+        <button id="chat-send-desktop">Отправить</button>
       </div>
 
+      <!-- Личка -->
       <div id="private-zone" style="display:none;">
         <h3 id="private-title-desktop">Личка с ...</h3>
         <div id="private-history-desktop">
           <div class="empty-hint">здесь пока ничего нету</div>
         </div>
-        <input id="private-input" placeholder="Напиши в личку...">
-        <button id="private-send">Отправить</button>
+        <input id="private-input-desktop" placeholder="Напиши в личку...">
+        <button id="private-send-desktop">Отправить</button>
       </div>
     </main>
 
