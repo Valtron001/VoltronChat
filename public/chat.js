@@ -3,23 +3,40 @@ window.onload = () => {
   let currentUser = "";
   let activePrivate = "";
   const socket = io();
+  const contacts = new Set();
 
+  // 💡 Выбор нужных элементов
   const refs = {
-    onlineList: document.getElementById(isMobile ? "online-users-mobile" : "online-users-desktop"),
+    online: document.getElementById(isMobile ? "online-users-mobile" : "online-users-desktop"),
     chatHistory: document.getElementById(isMobile ? "chat-history-mobile" : "chat-history-desktop"),
-    privateList: document.getElementById(isMobile ? "private-notify-mobile" : "private-notify-desktop"),
-    privateHistory: document.getElementById(isMobile ? "private-history-mobile" : "private-history-desktop"),
+    privateHistory: document.getElementById("private-history-desktop"),
+    privateInput: document.getElementById("private-input"),
+    privateSend: document.getElementById("private-send"),
     chatInput: document.getElementById("chat-input"),
-    privateInput: document.getElementById("private-input")
+    chatSend: document.getElementById("chat-send"),
+    chatZone: document.getElementById("desktop-chat-zone"),
+    privateZone: document.getElementById("private-zone"),
+    privateTitle: document.getElementById("private-title-desktop"),
+    savedContacts: document.getElementById("saved-contacts")
   };
 
+  // 🎯 Инициализация: скрыть личку
+  if (!isMobile) {
+    refs.privateInput.style.display = "none";
+    refs.privateSend.style.display = "none";
+    refs.privateTitle.textContent = "Личка";
+    refs.privateHistory.innerHTML = `<div class="empty-hint">здесь пока ничего нету</div>`;
+  }
+
+  // 👤 Ваш ник
   socket.on("your nickname", nick => {
     currentUser = nick;
     console.log("👤 Ваш ник:", currentUser);
   });
 
+  // 🟢 Онлайн юзеры
   socket.on("online users", users => {
-    refs.onlineList.innerHTML = "";
+    refs.online.innerHTML = "";
     users.forEach(user => {
       const li = document.createElement("li");
       li.textContent = user;
@@ -27,24 +44,21 @@ window.onload = () => {
       if (user !== currentUser) {
         li.onclick = () => openPrivateChat(user);
       }
-      refs.onlineList.appendChild(li);
+      refs.online.appendChild(li);
     });
   });
 
+  // 💬 Общий чат
   socket.on("chat message", msg => {
     const line = document.createElement("div");
     line.textContent = msg.text;
     refs.chatHistory.appendChild(line);
   });
 
+  // ✉️ Личка пришла
   socket.on("private notify", ({ from, text }) => {
-    console.log("📩 Личка от:", from, "→", text);
-    const exists = [...refs.privateList.children].some(li => li.textContent === from);
-    if (!exists) {
-      const li = document.createElement("li");
-      li.textContent = from;
-      li.onclick = () => openPrivateChat(from);
-      refs.privateList.appendChild(li);
+    if (!contacts.has(from)) {
+      addSavedContact(from);
     }
     if (activePrivate === from) {
       const line = document.createElement("div");
@@ -53,14 +67,16 @@ window.onload = () => {
     }
   });
 
-  function sendMessage() {
+  // 🟦 Отправка общего
+  refs.chatSend.addEventListener("click", () => {
     const msg = refs.chatInput.value.trim();
     if (!msg) return;
     socket.emit("chat message", msg);
     refs.chatInput.value = "";
-  }
+  });
 
-  async function sendPrivateMessage() {
+  // 🟧 Отправка лички
+  refs.privateSend.addEventListener("click", async () => {
     const text = refs.privateInput.value.trim();
     if (!text || !activePrivate) return;
 
@@ -76,33 +92,54 @@ window.onload = () => {
         line.textContent = `${currentUser}: ${text}`;
         refs.privateHistory.appendChild(line);
         refs.privateInput.value = "";
+
+        // добавляем, если не было
+        if (!contacts.has(activePrivate)) {
+          addSavedContact(activePrivate);
+        }
       } else {
         console.warn("❌ Личка не отправлена");
       }
     } catch (err) {
       console.error("🚫 Ошибка отправки:", err.message);
     }
-  }
+  });
 
+  // 🧩 Открытие лички с юзером
   function openPrivateChat(nick) {
     activePrivate = nick;
-    const title = document.getElementById("private-title");
-    if (title) title.textContent = `Личка с ${nick}`;
-    switchScreen("private");
+
+    if (!isMobile) {
+      // 🔄 переключение зон
+      refs.chatZone.style.display = "none";
+      refs.privateZone.style.display = "block";
+      refs.privateInput.style.display = "block";
+      refs.privateSend.style.display = "inline-block";
+      refs.privateTitle.textContent = `Личка с ${nick}`;
+
+      // ✨ подсветка
+      document.querySelectorAll(".saved-contact").forEach(c => {
+        c.classList.remove("active-contact");
+      });
+      const card = [...refs.savedContacts.children].find(c => c.textContent === nick);
+      if (card) card.classList.add("active-contact");
+    }
+
     loadPrivateHistory();
   }
 
+  // 📦 Загрузка истории
   async function loadPrivateHistory() {
     try {
       const res = await fetch("/private/inbox");
       const msgs = await res.json();
       refs.privateHistory.innerHTML = "";
 
-      const relevantMsgs = msgs.filter(
+      const relevant = msgs.filter(
         m => m.sender === activePrivate || m.recipient === activePrivate
       );
 
-      if (relevantMsgs.length === 0) {
+      if (relevant.length === 0) {
         const hint = document.createElement("div");
         hint.className = "empty-hint";
         hint.textContent = "здесь пока ничего нету";
@@ -110,7 +147,7 @@ window.onload = () => {
         return;
       }
 
-      relevantMsgs
+      relevant
         .sort((a, b) => a.timestamp - b.timestamp)
         .forEach(m => {
           const who = m.sender === currentUser ? currentUser : m.sender;
@@ -119,23 +156,23 @@ window.onload = () => {
           refs.privateHistory.appendChild(line);
         });
     } catch (err) {
-      console.error("🚫 Ошибка загрузки лички:", err.message);
+      console.error("🚫 Ошибка истории лички:", err.message);
     }
   }
 
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.addEventListener("click", () => switchScreen(tab.dataset.screen));
-  });
-
-  function switchScreen(name) {
-    document.querySelectorAll(".screen").forEach(s => {
-      s.classList.toggle("active", s.id === "screen-" + name);
-    });
-    document.querySelectorAll(".tab").forEach(t => {
-      t.classList.toggle("active", t.dataset.screen === name);
-    });
+  // 🧠 Добавление карточки в личку
+  function addSavedContact(nick) {
+    contacts.add(nick);
+    const card = document.createElement("div");
+    card.className = "saved-contact";
+    card.textContent = nick;
+    card.onclick = () => openPrivateChat(nick);
+    refs.savedContacts.appendChild(card);
   }
 
-  document.getElementById("chat-send").addEventListener("click", sendMessage);
-  document.getElementById("private-send").addEventListener("click", sendPrivateMessage);
+  // 📆 Очистка собеседников (временно — вручную)
+  // setInterval(() => {
+  //   contacts.clear();
+  //   refs.savedContacts.innerHTML = "";
+  // }, 86400000); // каждые 24 часа
 };

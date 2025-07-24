@@ -12,7 +12,7 @@
     <img src="/images/logo.png" alt="Voltron" class="logo-img">
   </div>
 
-  <!-- 🔹 Мобильная вкладочная навигация -->
+  <!-- 🔹 Мобильные вкладки -->
   <div class="tab-bar">
     <button class="tab active" data-screen="online">🟢</button>
     <button class="tab" data-screen="chat">💬</button>
@@ -56,18 +56,26 @@
     </aside>
 
     <main class="main-chat">
-      <h3 id="chat-title">💬 Общий чат</h3>
-      <div id="chat-history-desktop"></div>
-      <input id="chat-input" placeholder="Введите сообщение">
-      <button id="chat-send">Отправить</button>
+      <div id="desktop-chat-zone">
+        <h3 id="chat-title">💬 Общий чат</h3>
+        <div id="chat-history-desktop"></div>
+        <input id="chat-input" placeholder="Введите сообщение">
+        <button id="chat-send">Отправить</button>
+      </div>
+
+      <div id="private-zone" style="display:none;">
+        <h3 id="private-title-desktop">Личка с ...</h3>
+        <div id="private-history-desktop">
+          <div class="empty-hint">здесь пока ничего нету</div>
+        </div>
+        <input id="private-input" placeholder="Напиши в личку...">
+        <button id="private-send">Отправить</button>
+      </div>
     </main>
 
     <aside class="sidebar-right">
       <h3>✉️ Личка</h3>
-      <ul id="private-notify-desktop"></ul>
-      <div id="private-history-desktop"></div>
-      <input id="private-input" placeholder="Напиши в личку...">
-      <button id="private-send">Отправить</button>
+      <div id="saved-contacts"></div>
     </aside>
   </div>
 
