@@ -1,6 +1,3 @@
-const messages = [];
-const onlineUsers = new Map();
-
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
@@ -14,6 +11,9 @@ const supabase = require("./supabase");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+
+const messages = [];
+const onlineUsers = new Map(); // socket.id → nickname
 
 const expressSession = session({
   secret: "voltronSecretKey",
@@ -33,6 +33,7 @@ function logAction(text) {
 }
 
 // 📌 Страницы
+app.get("/", (req, res) => res.sendFile(__dirname + "/public/login.html"));
 app.get("/login", (req, res) => res.sendFile(__dirname + "/public/login.html"));
 app.get("/register", (req, res) => res.sendFile(__dirname + "/public/register.html"));
 app.get("/chat", (req, res) => {
@@ -43,103 +44,65 @@ app.get("/chat", (req, res) => {
 // 📌 Регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
-  const activeNicknames = Array.from(onlineUsers.values());
-  console.log("📥 Получены данные:", { login, password, repeat, nickname });
+  if (password !== repeat) return res.sendFile(__dirname + "/public/error.html");
 
-  if (password !== repeat) {
-    console.log("⛔ Пароли не совпадают");
-    return res.sendFile(__dirname + "/public/error.html");
-  }
+  const existingNicknames = Array.from(onlineUsers.values());
+  if (existingNicknames.includes(nickname)) return res.sendFile(__dirname + "/public/error.html");
 
-  if (activeNicknames.includes(nickname)) {
-    console.log("⛔ Ник уже используется в чате:", nickname);
-    return res.sendFile(__dirname + "/public/error.html");
-  }
+  const { data: users, error: selectError } = await supabase
+    .from("users")
+    .select("login")
+    .eq("login", login)
+    .limit(1);
 
-  try {
-    const { data: users, error: selectError } = await supabase
-      .from("users")
-      .select("login")
-      .eq("login", login)
-      .limit(1);
+  if (selectError || (users && users.length > 0)) return res.sendFile(__dirname + "/public/error.html");
 
-    if (selectError) {
-      console.error("❌ Supabase SELECT error:", selectError.message);
-      return res.sendFile(__dirname + "/public/error.html");
-    }
+  const hash = await bcrypt.hash(password, 10);
+  const { error: insertError } = await supabase
+    .from("users")
+    .insert([{ login, password_hash: hash, nickname }]);
 
-    const existingUser = users && users.length > 0 ? users[0] : null;
+  if (insertError) return res.sendFile(__dirname + "/public/error.html");
 
-    if (existingUser) {
-      console.log("⛔ Логин уже занят:", login);
-      return res.sendFile(__dirname + "/public/error.html");
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-
-    const { error: insertError } = await supabase
-      .from("users")
-      .insert([{ login, password_hash: hash, nickname }]);
-
-    if (insertError) {
-      console.error("❌ Supabase INSERT error:", insertError.message);
-      return res.sendFile(__dirname + "/public/error.html");
-    }
-
-    req.session.user = login;
-    req.session.nickname = nickname || "Гость";
-    logAction(`🔐 Зарегистрировался: ${login} / Ник: ${req.session.nickname}`);
-    console.log("✅ Пользователь добавлен в Supabase:", login);
-    res.redirect("/chat");
-  } catch (err) {
-    console.error("❌ Исключение регистрации:", err.message);
-    res.sendFile(__dirname + "/public/error.html");
-  }
+  req.session.user = login;
+  req.session.nickname = nickname;
+  logAction(`🔐 Зарегистрировался: ${login} / Ник: ${nickname}`);
+  res.redirect("/chat");
 });
 
 // 📌 Вход
 app.post("/login", async (req, res) => {
   const { login, password, nickname } = req.body;
-  const activeNicknames = Array.from(onlineUsers.values());
-  console.log("🔑 Вход:", { login, nickname });
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("password_hash")
+    .eq("login", login)
+    .single();
 
-  try {
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("password_hash")
-      .eq("login", login)
-      .single();
+  if (error || !user) return res.sendFile(__dirname + "/public/error.html");
 
-    if (error || !user) {
-      console.log("⛔ Логин не найден:", login);
-      return res.sendFile(__dirname + "/public/error.html");
-    }
+  const match = await bcrypt.compare(password, user.password_hash);
+  if (!match) return res.sendFile(__dirname + "/public/error.html");
 
-    const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) {
-      console.log("⛔ Неверный пароль");
-      return res.sendFile(__dirname + "/public/error.html");
-    }
+  const activeNicks = Array.from(onlineUsers.values());
+  if (activeNicks.includes(nickname)) return res.sendFile(__dirname + "/public/error.html");
 
-    if (activeNicknames.includes(nickname)) {
-      console.log("⛔ Ник уже используется в чате:", nickname);
-      return res.sendFile(__dirname + "/public/error.html");
-    }
-
-    req.session.user = login;
-    req.session.nickname = nickname || "Гость";
-    logAction(`✅ Вошёл: ${login} / Ник: ${req.session.nickname}`);
-    res.redirect("/chat");
-  } catch (err) {
-    console.error("❌ Ошибка входа:", err.message);
-    res.sendFile(__dirname + "/public/error.html");
-  }
+  req.session.user = login;
+  req.session.nickname = nickname;
+  logAction(`✅ Вошёл: ${login} / Ник: ${nickname}`);
+  res.redirect("/chat");
 });
 
-// 📌 Личная переписка: отправка
+// 📌 Выход
+app.post("/logout", (req, res) => {
+  logAction(`🚪 Вышел: ${req.session.user} / Ник: ${req.session.nickname}`);
+  req.session.destroy(() => res.redirect("/"));
+});
+
+// 📌 Отправка личного сообщения
 app.post("/private/send", async (req, res) => {
   const { to, text } = req.body;
-  const from = req.session.user;
+  const from = req.session.nickname;
   const timestamp = Date.now();
 
   const { error } = await supabase
@@ -161,35 +124,28 @@ app.post("/private/send", async (req, res) => {
   res.sendStatus(200);
 });
 
-// 📌 Личная переписка: загрузка входящих
+// 📌 Загрузка лички
 app.get("/private/inbox", async (req, res) => {
-  const user = req.session.user;
+  const nick = req.session.nickname;
   const cutoff = Date.now() - 86400000;
 
   const { data, error } = await supabase
     .from("private_messages")
     .select("*")
-    .eq("recipient", user)
+    .or(`sender.eq.${nick},recipient.eq.${nick}`)
     .gt("timestamp", cutoff)
     .order("timestamp", { ascending: true });
 
-  if (error) {
-    console.error("❌ Личка не загружена:", error.message);
-    return res.status(500).send("Ошибка загрузки");
-  }
+  if (error) return res.status(500).send("Ошибка загрузки");
 
   res.json(data);
 });
 
-// 📌 Выход
-app.post("/logout", (req, res) => {
-  logAction(`🚪 Вышел: ${req.session.user} / Ник: ${req.session.nickname}`);
-  req.session.destroy(() => res.redirect("/"));
-});
-
 // 📡 Socket.IO
 io.on("connection", (socket) => {
-  const nickname = socket.handshake.session.nickname || "Гость";
+  const nickname = socket.handshake.session.nickname;
+  if (!nickname) return;
+
   onlineUsers.set(socket.id, nickname);
   socket.emit("your nickname", nickname);
   io.emit("online users", Array.from(onlineUsers.values()));
@@ -208,7 +164,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     onlineUsers.delete(socket.id);
     io.emit("online users", Array.from(onlineUsers.values()));
-    logAction(`🔴 Socket отключён: ${nickname}`);
+    logAction(`🔴 Отключился: ${nickname}`);
   });
 });
 

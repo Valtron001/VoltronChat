@@ -6,6 +6,7 @@ const socket = io();
 // ✅ Получаем свой ник
 socket.on("your nickname", nick => {
   currentUser = nick;
+  console.log("👤 Ваш ник:", currentUser);
 });
 
 // ✅ Список онлайн-юзеров
@@ -31,8 +32,10 @@ socket.on("chat message", msg => {
   div.appendChild(line);
 });
 
-// ✅ Личное сообщение: обновление и уведомление
+// ✅ Личное сообщение: уведомление и отображение
 socket.on("private notify", ({ from, text }) => {
+  console.log("📩 Личка от:", from, "→", text);
+
   const list = document.getElementById("private-notify");
   const exists = [...list.children].some(li => li.textContent === from);
   if (!exists) {
@@ -42,7 +45,6 @@ socket.on("private notify", ({ from, text }) => {
     list.appendChild(li);
   }
 
-  // Если личка открыта — покажем входящее
   if (activePrivate === from) {
     const line = document.createElement("div");
     line.textContent = `${from}: ${text}`;
@@ -54,10 +56,9 @@ socket.on("private notify", ({ from, text }) => {
 function sendMessage() {
   const input = document.getElementById("chat-input");
   const msg = input.value.trim();
-  if (msg) {
-    socket.emit("chat message", msg);
-    input.value = "";
-  }
+  if (!msg) return;
+  socket.emit("chat message", msg);
+  input.value = "";
 }
 
 // ✅ Открытие лички
@@ -69,43 +70,54 @@ function openPrivateChat(nick) {
 }
 
 // ✅ Отправка личного сообщения
-function sendPrivateMessage() {
+async function sendPrivateMessage() {
   const input = document.getElementById("private-input");
   const text = input.value.trim();
   if (!text || !activePrivate) return;
 
-  fetch("/private/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `to=${activePrivate}&text=${encodeURIComponent(text)}`
-  });
-
-  const line = document.createElement("div");
-  line.textContent = `${currentUser}: ${text}`;
-  document.getElementById("private-history").appendChild(line);
-  input.value = "";
-}
-
-// ✅ Загрузка истории лички из Supabase
-function loadPrivateHistory() {
-  fetch("/private/inbox")
-    .then(r => r.json())
-    .then(msgs => {
-      const div = document.getElementById("private-history");
-      div.innerHTML = "";
-      msgs
-        .filter(m => m.sender === activePrivate || m.recipient === activePrivate)
-        .sort((a, b) => a.timestamp - b.timestamp)
-        .forEach(m => {
-          const who = m.sender === currentUser ? currentUser : m.sender;
-          const line = document.createElement("div");
-          line.textContent = `${who}: ${m.message}`;
-          div.appendChild(line);
-        });
+  try {
+    const res = await fetch("/private/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `to=${activePrivate}&text=${encodeURIComponent(text)}`
     });
+
+    if (res.ok) {
+      const line = document.createElement("div");
+      line.textContent = `${currentUser}: ${text}`;
+      document.getElementById("private-history").appendChild(line);
+      input.value = "";
+    } else {
+      console.warn("❌ Личка не отправлена");
+    }
+  } catch (err) {
+    console.error("🚫 Ошибка отправки:", err.message);
+  }
 }
 
-// ✅ Переключение экранов по вкладке
+// ✅ Загрузка истории лички
+async function loadPrivateHistory() {
+  try {
+    const res = await fetch("/private/inbox");
+    const msgs = await res.json();
+    const div = document.getElementById("private-history");
+    div.innerHTML = "";
+
+    msgs
+      .filter(m => m.sender === activePrivate || m.recipient === activePrivate)
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .forEach(m => {
+        const who = m.sender === currentUser ? currentUser : m.sender;
+        const line = document.createElement("div");
+        line.textContent = `${who}: ${m.message}`;
+        div.appendChild(line);
+      });
+  } catch (err) {
+    console.error("🚫 Ошибка загрузки лички:", err.message);
+  }
+}
+
+// ✅ Переключение экранов по вкладкам
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => switchScreen(tab.dataset.screen));
 });
@@ -135,6 +147,6 @@ document.getElementById("screens").addEventListener("touchend", (e) => {
   let current = screens.find(s => document.getElementById("screen-" + s).classList.contains("active"));
   let index = screens.indexOf(current);
 
-  if (dx < 0 && index < screens.length - 1) switchScreen(screens[index + 1]); // свайп влево
-  else if (dx > 0 && index > 0) switchScreen(screens[index - 1]); // свайп вправо
+  if (dx < 0 && index < screens.length - 1) switchScreen(screens[index + 1]);
+  else if (dx > 0 && index > 0) switchScreen(screens[index - 1]);
 });
