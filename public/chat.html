@@ -12,17 +12,18 @@
     <img src="/images/logo.png" alt="Voltron" class="logo-img">
   </div>
 
-  <!-- 🔹 Мобильная версия — вкладки -->
+  <!-- 🔹 Мобильная вкладочная навигация -->
   <div class="tab-bar">
     <button class="tab active" data-screen="online">🟢</button>
     <button class="tab" data-screen="chat">💬</button>
     <button class="tab" data-screen="private">✉️</button>
   </div>
 
+  <!-- 🔹 Мобильные экраны -->
   <div class="screen-container" id="screens">
     <section class="screen" id="screen-online">
       <h3>Пользователи онлайн</h3>
-      <ul id="online-users"></ul>
+      <ul id="online-users-mobile"></ul>
       <form action="/logout" method="POST" style="margin-top:20px;">
         <button>Выйти</button>
       </form>
@@ -30,15 +31,15 @@
 
     <section class="screen" id="screen-chat">
       <h3>Общий чат</h3>
-      <div id="chat-history"></div>
+      <div id="chat-history-mobile"></div>
       <input id="chat-input" placeholder="Введите сообщение">
       <button id="chat-send">Отправить</button>
     </section>
 
     <section class="screen" id="screen-private">
       <h3 id="private-title">Личка</h3>
-      <ul id="private-notify"></ul>
-      <div id="private-history"></div>
+      <ul id="private-notify-mobile"></ul>
+      <div id="private-history-mobile"></div>
       <input id="private-input" placeholder="Напиши в личку...">
       <button id="private-send">Отправить</button>
     </section>
@@ -48,7 +49,7 @@
   <div class="chat-container">
     <aside class="sidebar-left">
       <h3>🟢 Онлайн</h3>
-      <ul id="online-users"></ul>
+      <ul id="online-users-desktop"></ul>
       <form action="/logout" method="POST" style="margin-top:20px;">
         <button>Выйти</button>
       </form>
@@ -56,15 +57,15 @@
 
     <main class="main-chat">
       <h3 id="chat-title">💬 Общий чат</h3>
-      <div id="chat-history"></div>
+      <div id="chat-history-desktop"></div>
       <input id="chat-input" placeholder="Введите сообщение">
       <button id="chat-send">Отправить</button>
     </main>
 
     <aside class="sidebar-right">
       <h3>✉️ Личка</h3>
-      <ul id="private-notify"></ul>
-      <div id="private-history"></div>
+      <ul id="private-notify-desktop"></ul>
+      <div id="private-history-desktop"></div>
       <input id="private-input" placeholder="Напиши в личку...">
       <button id="private-send">Отправить</button>
     </aside>

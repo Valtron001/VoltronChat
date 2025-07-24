@@ -1,25 +1,15 @@
-/* 🔹 Общие стили */
+/* 🔹 Glow-система */
 body {
-  background-color: #121212;
+  background: #121212;
   color: #a4e6ff;
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
   padding: 15px;
   box-shadow: inset 0 0 150px #6dc4f320;
 }
-
-/* 🔹 Центровка на десктопе */
-@media (min-width: 751px) {
-  body {
-    max-width: 1440px;
-    margin: 0 auto;
-  }
-}
-
-/* 🔹 Лого */
 .logo-block {
   width: 120px;
-  margin: 10px auto 20px auto;
+  margin: 10px auto 20px;
   text-align: center;
 }
 .logo-img {
@@ -28,15 +18,12 @@ body {
   display: block;
 }
 
-/* 🔹 Десктопный макет */
+/* 🔹 Десктопная раскладка */
 .chat-container {
   display: flex;
   gap: 15px;
-  flex-wrap: wrap;
   justify-content: space-between;
 }
-
-/* 🔹 Боковые панели */
 .sidebar-left,
 .sidebar-right {
   width: 220px;
@@ -47,29 +34,6 @@ body {
   height: 600px;
   overflow-y: auto;
 }
-.sidebar-left h3,
-.sidebar-right h3 {
-  margin-top: 0;
-  font-size: 18px;
-  color: #6dc4f3;
-}
-
-/* 🔹 Списки пользователей */
-#online-users li,
-#private-notify li {
-  padding: 6px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-  transition: 0.2s;
-  cursor: pointer;
-  background: #252525;
-}
-#online-users li:hover,
-#private-notify li:hover {
-  background: #2f2f2f;
-}
-
-/* 🔹 Центральный чат */
 .main-chat {
   flex: 1;
   background: #0e0e0e;
@@ -85,28 +49,31 @@ body {
   color: #6dc4f3;
   margin-top: 0;
 }
-#chat-history {
+#chat-history-desktop,
+#chat-history-mobile {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 10px;
 }
-#chat-history div {
+#chat-history-desktop div,
+#chat-history-mobile div,
+#private-history-desktop div,
+#private-history-mobile div {
   background: #1f1f1f;
   padding: 8px;
   margin: 5px 0;
   border-radius: 5px;
 }
-#chat-input {
+#chat-input,
+#private-input {
   width: 100%;
   padding: 10px;
   border: 1px solid #6dc4f3;
-  background-color: #0e0e0e;
+  background: #0e0e0e;
   color: #a4e6ff;
   border-radius: 5px;
-  margin-bottom: 8px;
+  margin-top: 8px;
 }
-
-/* 🔹 Кнопки */
 button {
   padding: 10px;
   background: #0e0e0e;
@@ -121,29 +88,20 @@ button:hover {
   box-shadow: 0 0 8px #6dc4f3;
 }
 
-/* 🔹 Личка */
-#private-chat {
-  background: #121212;
-  color: #a4e6ff;
-  border-radius: 10px;
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-#private-history div {
-  background: #1f1f1f;
-  padding: 8px;
-  margin: 6px 0;
+/* 🔹 Списки пользователей */
+#online-users-desktop li,
+#private-notify-desktop li,
+#online-users-mobile li,
+#private-notify-mobile li {
+  padding: 6px;
+  margin-bottom: 5px;
   border-radius: 5px;
+  background: #252525;
+  transition: 0.2s;
+  cursor: pointer;
 }
-#private-input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: #0e0e0e;
-  border: 1px solid #6dc4f3;
-  color: #a4e6ff;
-  border-radius: 5px;
+li:hover {
+  background: #2f2f2f;
 }
 
 /* 🔹 Мобильные вкладки */
@@ -173,7 +131,6 @@ button:hover {
 /* 🔹 Экраны мобильной версии */
 .screen-container {
   overflow: hidden;
-  position: relative;
 }
 .screen {
   min-height: 400px;
@@ -184,7 +141,22 @@ button:hover {
   display: block;
 }
 
-/* 🔹 Адаптация на телефоне */
+/* 🔹 Пустой экран лички */
+.empty-hint {
+  font-size: 16px;
+  text-align: center;
+  margin-top: 50px;
+  color: #888;
+  font-style: italic;
+  opacity: 0.6;
+  animation: fadeInHint 0.4s ease-in;
+}
+@keyframes fadeInHint {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 0.6; transform: translateY(0); }
+}
+
+/* 🔹 Адаптация для мобилки */
 @media (max-width: 750px) {
   .chat-container {
     display: none;
@@ -202,40 +174,22 @@ button:hover {
   }
   .logo-block {
     width: 90px;
-    margin: 10px auto 15px auto;
+    margin: 10px auto 15px;
     text-align: center;
   }
 }
 
-/* 🔹 Активация десктопного макета */
+/* 🔹 Адаптация для десктопа */
 @media (min-width: 751px) {
-  .screen-container {
+  .screen-container,
+  .tab-bar {
     display: none;
   }
   .chat-container {
     display: flex;
   }
-}
-
-/* 🔹 Пустой экран лички */
-.empty-hint {
-  font-size: 16px;
-  text-align: center;
-  margin-top: 50px;
-  color: #888;
-  font-style: italic;
-  opacity: 0.6;
-  animation: fadeInHint 0.4s ease-in;
-}
-
-/* 🔹 Анимация появления */
-@keyframes fadeInHint {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 0.6;
-    transform: translateY(0);
+  body {
+    max-width: 1440px;
+    margin: 0 auto;
   }
 }

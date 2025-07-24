@@ -1,7 +1,17 @@
 window.onload = () => {
+  const isMobile = window.innerWidth <= 750;
   let currentUser = "";
   let activePrivate = "";
   const socket = io();
+
+  const refs = {
+    onlineList: document.getElementById(isMobile ? "online-users-mobile" : "online-users-desktop"),
+    chatHistory: document.getElementById(isMobile ? "chat-history-mobile" : "chat-history-desktop"),
+    privateList: document.getElementById(isMobile ? "private-notify-mobile" : "private-notify-desktop"),
+    privateHistory: document.getElementById(isMobile ? "private-history-mobile" : "private-history-desktop"),
+    chatInput: document.getElementById("chat-input"),
+    privateInput: document.getElementById("private-input")
+  };
 
   socket.on("your nickname", nick => {
     currentUser = nick;
@@ -9,8 +19,7 @@ window.onload = () => {
   });
 
   socket.on("online users", users => {
-    const ul = document.getElementById("online-users");
-    ul.innerHTML = "";
+    refs.onlineList.innerHTML = "";
     users.forEach(user => {
       const li = document.createElement("li");
       li.textContent = user;
@@ -18,45 +27,41 @@ window.onload = () => {
       if (user !== currentUser) {
         li.onclick = () => openPrivateChat(user);
       }
-      ul.appendChild(li);
+      refs.onlineList.appendChild(li);
     });
   });
 
   socket.on("chat message", msg => {
-    const div = document.getElementById("chat-history");
     const line = document.createElement("div");
     line.textContent = msg.text;
-    div.appendChild(line);
+    refs.chatHistory.appendChild(line);
   });
 
   socket.on("private notify", ({ from, text }) => {
     console.log("📩 Личка от:", from, "→", text);
-    const list = document.getElementById("private-notify");
-    const exists = [...list.children].some(li => li.textContent === from);
+    const exists = [...refs.privateList.children].some(li => li.textContent === from);
     if (!exists) {
       const li = document.createElement("li");
       li.textContent = from;
       li.onclick = () => openPrivateChat(from);
-      list.appendChild(li);
+      refs.privateList.appendChild(li);
     }
     if (activePrivate === from) {
       const line = document.createElement("div");
       line.textContent = `${from}: ${text}`;
-      document.getElementById("private-history").appendChild(line);
+      refs.privateHistory.appendChild(line);
     }
   });
 
   function sendMessage() {
-    const input = document.getElementById("chat-input");
-    const msg = input.value.trim();
+    const msg = refs.chatInput.value.trim();
     if (!msg) return;
     socket.emit("chat message", msg);
-    input.value = "";
+    refs.chatInput.value = "";
   }
 
   async function sendPrivateMessage() {
-    const input = document.getElementById("private-input");
-    const text = input.value.trim();
+    const text = refs.privateInput.value.trim();
     if (!text || !activePrivate) return;
 
     try {
@@ -69,8 +74,8 @@ window.onload = () => {
       if (res.ok) {
         const line = document.createElement("div");
         line.textContent = `${currentUser}: ${text}`;
-        document.getElementById("private-history").appendChild(line);
-        input.value = "";
+        refs.privateHistory.appendChild(line);
+        refs.privateInput.value = "";
       } else {
         console.warn("❌ Личка не отправлена");
       }
@@ -81,8 +86,9 @@ window.onload = () => {
 
   function openPrivateChat(nick) {
     activePrivate = nick;
+    const title = document.getElementById("private-title");
+    if (title) title.textContent = `Личка с ${nick}`;
     switchScreen("private");
-    document.getElementById("private-title").textContent = `Личка с ${nick}`;
     loadPrivateHistory();
   }
 
@@ -90,8 +96,7 @@ window.onload = () => {
     try {
       const res = await fetch("/private/inbox");
       const msgs = await res.json();
-      const div = document.getElementById("private-history");
-      div.innerHTML = "";
+      refs.privateHistory.innerHTML = "";
 
       const relevantMsgs = msgs.filter(
         m => m.sender === activePrivate || m.recipient === activePrivate
@@ -101,7 +106,7 @@ window.onload = () => {
         const hint = document.createElement("div");
         hint.className = "empty-hint";
         hint.textContent = "здесь пока ничего нету";
-        div.appendChild(hint);
+        refs.privateHistory.appendChild(hint);
         return;
       }
 
@@ -111,7 +116,7 @@ window.onload = () => {
           const who = m.sender === currentUser ? currentUser : m.sender;
           const line = document.createElement("div");
           line.textContent = `${who}: ${m.message}`;
-          div.appendChild(line);
+          refs.privateHistory.appendChild(line);
         });
     } catch (err) {
       console.error("🚫 Ошибка загрузки лички:", err.message);
@@ -130,20 +135,6 @@ window.onload = () => {
       t.classList.toggle("active", t.dataset.screen === name);
     });
   }
-
-  let touchStartX = null;
-  const screens = ["online", "chat", "private"];
-  document.getElementById("screens").addEventListener("touchstart", (e) => {
-    touchStartX = e.changedTouches[0].clientX;
-  });
-  document.getElementById("screens").addEventListener("touchend", (e) => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) < 50) return;
-    let current = screens.find(s => document.getElementById("screen-" + s).classList.contains("active"));
-    let index = screens.indexOf(current);
-    if (dx < 0 && index < screens.length - 1) switchScreen(screens[index + 1]);
-    else if (dx > 0 && index > 0) switchScreen(screens[index - 1]);
-  });
 
   document.getElementById("chat-send").addEventListener("click", sendMessage);
   document.getElementById("private-send").addEventListener("click", sendPrivateMessage);
