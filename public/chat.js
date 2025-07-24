@@ -3,13 +3,11 @@ window.onload = () => {
   let activePrivate = "";
   const socket = io();
 
-  // ✅ Получаем ник
   socket.on("your nickname", nick => {
     currentUser = nick;
     console.log("👤 Ваш ник:", currentUser);
   });
 
-  // ✅ Онлайн-юзеры
   socket.on("online users", users => {
     const ul = document.getElementById("online-users");
     ul.innerHTML = "";
@@ -24,7 +22,6 @@ window.onload = () => {
     });
   });
 
-  // ✅ Общий чат
   socket.on("chat message", msg => {
     const div = document.getElementById("chat-history");
     const line = document.createElement("div");
@@ -32,7 +29,6 @@ window.onload = () => {
     div.appendChild(line);
   });
 
-  // ✅ Личка
   socket.on("private notify", ({ from, text }) => {
     console.log("📩 Личка от:", from, "→", text);
     const list = document.getElementById("private-notify");
@@ -50,7 +46,6 @@ window.onload = () => {
     }
   });
 
-  // ✅ Отправка общего
   function sendMessage() {
     const input = document.getElementById("chat-input");
     const msg = input.value.trim();
@@ -59,7 +54,6 @@ window.onload = () => {
     input.value = "";
   }
 
-  // ✅ Отправка личного
   async function sendPrivateMessage() {
     const input = document.getElementById("private-input");
     const text = input.value.trim();
@@ -85,7 +79,6 @@ window.onload = () => {
     }
   }
 
-  // ✅ Открытие лички
   function openPrivateChat(nick) {
     activePrivate = nick;
     switchScreen("private");
@@ -93,15 +86,26 @@ window.onload = () => {
     loadPrivateHistory();
   }
 
-  // ✅ Загрузка истории
   async function loadPrivateHistory() {
     try {
       const res = await fetch("/private/inbox");
       const msgs = await res.json();
       const div = document.getElementById("private-history");
       div.innerHTML = "";
-      msgs
-        .filter(m => m.sender === activePrivate || m.recipient === activePrivate)
+
+      const relevantMsgs = msgs.filter(
+        m => m.sender === activePrivate || m.recipient === activePrivate
+      );
+
+      if (relevantMsgs.length === 0) {
+        const hint = document.createElement("div");
+        hint.className = "empty-hint";
+        hint.textContent = "здесь пока ничего нету";
+        div.appendChild(hint);
+        return;
+      }
+
+      relevantMsgs
         .sort((a, b) => a.timestamp - b.timestamp)
         .forEach(m => {
           const who = m.sender === currentUser ? currentUser : m.sender;
@@ -114,7 +118,6 @@ window.onload = () => {
     }
   }
 
-  // ✅ Вкладки
   document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => switchScreen(tab.dataset.screen));
   });
@@ -128,7 +131,6 @@ window.onload = () => {
     });
   }
 
-  // ✅ Свайпы
   let touchStartX = null;
   const screens = ["online", "chat", "private"];
   document.getElementById("screens").addEventListener("touchstart", (e) => {
@@ -143,7 +145,6 @@ window.onload = () => {
     else if (dx > 0 && index > 0) switchScreen(screens[index - 1]);
   });
 
-  // ✅ Привязка кнопок через id
   document.getElementById("chat-send").addEventListener("click", sendMessage);
   document.getElementById("private-send").addEventListener("click", sendPrivateMessage);
 };
