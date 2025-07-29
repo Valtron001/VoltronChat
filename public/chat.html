@@ -3,24 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Glow Chat</title>
-  <link rel="stylesheet" href="chat.css" />
-  <script src="/socket.io/socket.io.js"></script>
+  <title>VoltronChat</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <!-- 🔹 Лого -->
   <div class="logo-block">
-    <img src="/images/logo.png" alt="Chat Logo" class="logo-img" />
+    <img src="logo.png" alt="Chat Logo" class="logo-img" />
   </div>
 
-  <!-- 🔹 Desktop layout -->
+  <!-- 🔹 Основной контейнер -->
   <div class="chat-container">
     <!-- 🟢 Онлайн -->
     <div class="sidebar-left">
       <div class="column-headers">
         <div class="column-title">Онлайн</div>
         <form action="/logout" method="POST">
-          <button class="exit-button">Выйти</button>
+          <button id="exit-button">Выйти</button>
         </form>
       </div>
       <ul id="online-users-desktop"></ul>
@@ -32,7 +31,7 @@
         <div class="column-title">Общий чат</div>
       </div>
       <div id="chat-history-desktop"></div>
-      <input type="text" id="chat-input-desktop" placeholder="Введите сообщение..." />
+      <input type="text" id="chat-input-desktop" placeholder="Напиши сообщение..." />
       <button id="chat-send-desktop">Отправить</button>
     </div>
 
@@ -46,39 +45,5 @@
       <button id="private-send-desktop">Отправить</button>
     </div>
   </div>
-
-  <!-- 🔹 Mobile layout -->
-  <div class="screen-container">
-    <div class="tab-bar">
-      <button class="tab active" data-screen="chat">💬</button>
-      <button class="tab" data-screen="online">🟢</button>
-      <button class="tab" data-screen="private">✉️</button>
-    </div>
-
-    <div class="screen" id="screen-online">
-      <h3>Пользователи онлайн</h3>
-      <ul id="online-users-mobile"></ul>
-      <form action="/logout" method="POST" style="margin-top:20px;">
-        <button>Выйти</button>
-      </form>
-    </div>
-
-    <div class="screen active" id="screen-chat">
-      <h3>Общий чат</h3>
-      <div id="chat-history-mobile"></div>
-      <input id="chat-input-mobile" placeholder="Введите сообщение" />
-      <button id="chat-send-mobile">Отправить</button>
-    </div>
-
-    <div class="screen" id="screen-private">
-      <h3 id="private-title">Личка</h3>
-      <div id="private-history-mobile"></div>
-      <input id="private-input-mobile" placeholder="Личное сообщение..." />
-      <button id="private-send-mobile">Отправить</button>
-    </div>
-  </div>
-
-  <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>
-  <script src="/chat.js"></script>
 </body>
 </html>
