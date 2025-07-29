@@ -37,6 +37,23 @@ body {
   height: calc(100vh - 100px);
   align-items: start;
 }
+/* 🔹 Горизонтальное выравнивание заголовков */
+.column-headers {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(109, 196, 243, 0.3); /* Glow-линия */
+  margin-bottom: 10px;
+}
+
+.column-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #6dc4f3;
+  padding: 0 8px;
+  min-height: 24px;
+}
 .sidebar-left, .chat-center, .sidebar-right {
   background: #1a1a1a;
   border-radius: 8px;
