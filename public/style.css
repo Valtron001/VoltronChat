@@ -54,7 +54,8 @@ body {
 }
 #desktop-chat-zone,
 #private-zone {
-  width: 48%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   background: #0e0e0e;
   border-radius: 10px;
@@ -213,6 +214,7 @@ button:hover {
   .chat-container { display: none; }
   .screen.active { display: block; }
   .logo-block { width: 90px; margin: 10px auto 15px; }
+  #private-zone { display: none; } /* скрыть личку на мобилке */
 }
 @media (min-width: 751px) {
   .screen-container, .tab-bar { display: none; }
