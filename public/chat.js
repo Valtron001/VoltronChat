@@ -3,8 +3,9 @@ window.onload = () => {
   const isMobile = window.innerWidth <= 768;
   let activePrivate = null;
   const currentUser = window.currentUser || "Вы";
+  const notifSound = document.getElementById("notif");
 
-  // 🔄 Переключение экранов
+  // 🔄 Переключение экранов (мобилка)
   document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -18,10 +19,11 @@ window.onload = () => {
   });
 
   // 💬 Отправка общего сообщения
-  const chatInput = document.getElementById(isMobile ? "chat-input-mobile" : "chat-input");
-  const chatSend = document.getElementById(isMobile ? "chat-send-mobile" : "chat-send");
+  const chatInput = document.getElementById(isMobile ? "chat-input-mobile" : "chat-input-desktop");
+  const chatSend = document.getElementById(isMobile ? "chat-send-mobile" : "chat-send-desktop");
+  const chatHistory = document.getElementById(isMobile ? "chat-history-mobile" : "chat-history-desktop");
 
-  if (chatSend) {
+  if (chatSend && chatInput) {
     chatSend.addEventListener("click", () => {
       const msg = chatInput.value.trim();
       if (!msg) return;
@@ -31,11 +33,11 @@ window.onload = () => {
   }
 
   // ✉️ Отправка лички
-  const privateInput = document.getElementById(isMobile ? "private-input-mobile" : "private-input");
-  const privateSend = document.getElementById(isMobile ? "private-send-mobile" : "private-send");
-  const history = document.getElementById(isMobile ? "private-history-mobile" : "private-history");
+  const privateInput = document.getElementById(isMobile ? "private-input-mobile" : "private-input-desktop");
+  const privateSend = document.getElementById(isMobile ? "private-send-mobile" : "private-send-desktop");
+  const privateHistory = document.getElementById(isMobile ? "private-history-mobile" : "private-history-desktop");
 
-  if (privateSend) {
+  if (privateSend && privateInput) {
     privateSend.addEventListener("click", async () => {
       const text = privateInput.value.trim();
       if (!text || !activePrivate) return;
@@ -50,7 +52,7 @@ window.onload = () => {
         if (res.ok) {
           const line = document.createElement("div");
           line.textContent = `${currentUser}: ${text}`;
-          if (history) history.appendChild(line);
+          if (privateHistory) privateHistory.appendChild(line);
           privateInput.value = "";
         }
       } catch (err) {
@@ -61,11 +63,10 @@ window.onload = () => {
 
   // 🟢 Получение общего сообщения
   socket.on("chat message", msg => {
-    const list = document.getElementById("chat-list");
-    if (list) {
-      const item = document.createElement("li");
+    if (chatHistory) {
+      const item = document.createElement("div");
       item.textContent = msg;
-      list.appendChild(item);
+      chatHistory.appendChild(item);
     }
   });
 
@@ -73,15 +74,41 @@ window.onload = () => {
   socket.on("private message", ({ from, text }) => {
     const line = document.createElement("div");
     line.textContent = `${from}: ${text}`;
-    if (history) history.appendChild(line);
+    if (privateHistory) privateHistory.appendChild(line);
+    if (notifSound) notifSound.play();
   });
 
-  // 📌 Выбор собеседника
-  document.querySelectorAll(".user-item").forEach(user => {
-    user.addEventListener("click", () => {
-      activePrivate = user.dataset.username;
-      document.querySelectorAll(".user-item").forEach(u => u.classList.remove("active"));
-      user.classList.add("active");
+  // 📌 Обновление списка онлайн
+  socket.on("update online", users => {
+    const onlineList = document.getElementById(
+      isMobile ? "online-users-mobile" : "online-users-desktop"
+    );
+
+    if (!onlineList) return;
+
+    onlineList.innerHTML = "";
+
+    users.forEach(user => {
+      const li = document.createElement("li");
+      li.textContent = user.username;
+      li.classList.add("user-item");
+      li.dataset.username = user.username;
+      onlineList.appendChild(li);
+
+      // 📌 Привязка обработчика выбора юзера
+      li.addEventListener("click", () => {
+        activePrivate = user.username;
+
+        document.querySelectorAll(".user-item").forEach(u => u.classList.remove("active"));
+        li.classList.add("active");
+
+        // 🎯 Показ десктопной лички
+        const privateZone = document.getElementById("private-zone");
+        if (privateZone) privateZone.style.display = "block";
+
+        const title = document.getElementById("private-title-desktop");
+        if (title) title.textContent = `Личка с ${activePrivate}`;
+      });
     });
   });
 };
