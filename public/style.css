@@ -37,6 +37,7 @@ body {
   height: calc(100vh - 100px);
   align-items: start;
 }
+
 /* 🔹 Горизонтальное выравнивание заголовков */
 .column-headers {
   display: flex;
@@ -46,7 +47,6 @@ body {
   border-bottom: 1px solid rgba(109, 196, 243, 0.3); /* Glow-линия */
   margin-bottom: 10px;
 }
-
 .column-title {
   font-size: 20px;
   font-weight: bold;
@@ -54,6 +54,8 @@ body {
   padding: 0 8px;
   min-height: 24px;
 }
+
+/* 🔹 Колонки */
 .sidebar-left, .chat-center, .sidebar-right {
   background: #1a1a1a;
   border-radius: 8px;
@@ -153,7 +155,7 @@ button:hover {
   to   { opacity: 0.6; transform: translateY(0); }
 }
 
-/* 🔹 Мобильная часть (без изменений) */
+/* 🔹 Мобильная часть */
 .screen-container { max-width: 100%; overflow-x: hidden; }
 .screen { min-height: 400px; padding: 15px; display: none; }
 .screen.active { display: block; }
