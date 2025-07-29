@@ -1,61 +1,66 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Voltron Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/style.css">
-  <script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Glow Chat</title>
+  <link rel="stylesheet" href="chat.css" />
 </head>
 <body>
+  <!-- 🔹 Лого -->
   <div class="logo-block">
-    <img src="/images/logo.png" alt="Voltron" class="logo-img">
+    <img src="logo.png" alt="Chat Logo" class="logo-img" />
   </div>
 
-  <!-- 🔹 Мобильные вкладки -->
-  <div class="tab-bar"> ... </div>
-
-  <!-- 🔹 Мобильные экраны -->
-  <div class="screen-container" id="screens"> ... </div>
-
-  <!-- 🧩 Заголовки колонок -->
-  <div class="column-headers">
-    <div class="column-title">🟢 Онлайн</div>
-    <div class="column-title">💬 Общий чат</div>
-    <div class="column-title">✉️ Личка</div>
-  </div>
-
-  <!-- 💻 Десктопная версия -->
+  <!-- 🔹 Desktop layout -->
   <div class="chat-container">
-    <aside class="sidebar-left">
-      <ul id="online-users-desktop"></ul>
-      <form action="/logout" method="POST" style="margin-top:20px;">
-        <button>Выйти</button>
-      </form>
-    </aside>
-
-    <main class="main-chat">
-      <div id="desktop-chat-zone">
-        <div id="chat-history-desktop"></div>
-        <input id="chat-input-desktop" placeholder="Введите сообщение">
-        <button id="chat-send-desktop">Отправить</button>
+    <div class="sidebar-left">
+      <div class="column-headers">
+        <div class="column-title">Онлайн</div>
       </div>
+      <ul id="online-users-desktop">
+        <li>Ирина 🌟</li>
+        <li>Александр</li>
+      </ul>
+    </div>
 
-      <div id="private-zone" style="display:none;">
-        <div id="private-history-desktop">
-          <div class="empty-hint">здесь пока ничего нету</div>
-        </div>
-        <input id="private-input-desktop" placeholder="Напиши в личку...">
-        <button id="private-send-desktop">Отправить</button>
+    <div class="chat-center">
+      <div class="column-headers">
+        <div class="column-title" id="chat-title">Общий чат</div>
       </div>
-    </main>
+      <div id="chat-history-desktop">
+        <div>Привет, Ирина!</div>
+        <div>Как тебе новый glow?</div>
+      </div>
+      <input type="text" id="chat-input-desktop" placeholder="Напиши сообщение..." />
+      <button id="chat-send-desktop">Отправить</button>
+    </div>
 
-    <aside class="sidebar-right">
-      <div id="saved-contacts"></div>
-    </aside>
+    <div class="sidebar-right" id="private-zone">
+      <div class="column-headers">
+        <div class="column-title" id="private-title-desktop">Личка</div>
+      </div>
+      <div id="private-history-desktop">
+        <div>👤 Александр: Псс, покажи glow!</div>
+      </div>
+      <input type="text" id="private-input-desktop" placeholder="Личное сообщение..." />
+      <button id="private-send-desktop">Отправить</button>
+    </div>
   </div>
 
-  <audio id="notif" src="/sounds/ping.mp3" preload="auto"></audio>
-  <script src="/chat.js"></script>
+  <!-- 🔹 Mobile layout -->
+  <div class="screen-container">
+    <div class="tab-bar">
+      <button class="tab active">Чат</button>
+      <button class="tab">Онлайн</button>
+    </div>
+
+    <div class="screen active" id="chat-screen-mobile">
+      <div id="chat-history-mobile">
+        <div>Добро пожаловать в glow-chat!</div>
+      </div>
+      <input type="text" id="chat-input-mobile" placeholder="Сообщение..." />
+    </div>
+  </div>
 </body>
 </html>
