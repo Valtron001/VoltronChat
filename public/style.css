@@ -29,12 +29,12 @@ body {
   display: block;
 }
 
-/* 🔹 Десктопная раскладка */
+/* 🔹 Общий layout */
 .chat-container {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   justify-content: space-between;
-  max-width: 100%;
+  height: 80vh;
 }
 .sidebar-left, .sidebar-right {
   width: 220px;
@@ -42,73 +42,70 @@ body {
   border-radius: 8px;
   box-shadow: 0 0 10px #6dc4f340;
   padding: 10px;
-  height: 600px;
   overflow-y: auto;
 }
+
+/* 🔹 Основная чат-зона */
 .main-chat {
   flex: 1;
+  display: flex;
+  gap: 20px;
+  background: transparent;
+}
+#desktop-chat-zone,
+#private-zone {
+  width: 48%;
+  height: 100%;
   background: #0e0e0e;
-  padding: 15px;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 0 12px #6dc4f320;
-  height: 600px;
-  overflow-y: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  justify-content: space-between;
+  padding: 15px;
+  overflow: hidden;
 }
 
-/* 🔹 Общий чат */
-#chat-title {
+/* 🔹 Заголовки */
+#chat-title, #private-title-desktop {
   color: #6dc4f3;
-  margin-top: 0;
-}
-#chat-history-desktop {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 10px;
-}
-#chat-history-desktop div {
-  background: #1f1f1f;
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 5px;
+  margin: 0 0 10px;
 }
 
-/* 🔹 Ввод чата */
-#chat-input-desktop, #private-input-desktop {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #6dc4f3;
-  background: #0e0e0e;
-  color: #a4e6ff;
-  border-radius: 5px;
-}
-#chat-send-desktop, #private-send-desktop {
-  margin-top: 8px;
-}
-
-/* 🔹 Личка */
-#private-title-desktop {
-  color: #6dc4f3;
-  margin-bottom: 10px;
-}
+/* 🔹 История сообщений */
+#chat-history-desktop,
 #private-history-desktop {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 10px;
+  padding-right: 5px;
+  margin-bottom: 12px;
 }
+#chat-history-desktop div,
 #private-history-desktop div {
   background: #1f1f1f;
   padding: 8px;
   margin: 5px 0;
-  border-radius: 5px;
+  border-radius: 6px;
 }
 
-/* 🔹 Кнопки */
-button {
+/* 🔹 Ввод и кнопки */
+#chat-input-desktop,
+#private-input-desktop {
+  width: 100%;
   padding: 10px;
+  border: 1px solid #6dc4f3;
+  background: #0e0e0e;
+  color: #a4e6ff;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+#chat-send-desktop,
+#private-send-desktop {
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px;
+}
+button {
   background: #0e0e0e;
   border: 1px solid #6dc4f3;
   color: #6dc4f3;
@@ -121,33 +118,19 @@ button:hover {
   box-shadow: 0 0 8px #6dc4f3;
 }
 
-/* 🔹 Онлайн */
+/* 🔹 Онлайн, контакты, списки */
 #online-users-desktop li,
-#online-users-mobile li {
+.saved-contact {
+  background: #252525;
   padding: 6px;
   margin-bottom: 5px;
   border-radius: 5px;
-  background: #252525;
-  transition: 0.2s;
   cursor: pointer;
+  transition: 0.2s;
 }
 #online-users-desktop li:hover,
-#online-users-mobile li:hover {
-  background: #2f2f2f;
-}
-
-/* 🔹 Список собеседников */
-.saved-contact {
-  background: #1a1a1a;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-  border: 1px solid transparent;
-}
 .saved-contact:hover {
-  background: #242424;
+  background: #2f2f2f;
 }
 .saved-contact.active-contact {
   background: #21252c;
@@ -207,7 +190,8 @@ button:hover {
   color: #6dc4f3;
   border-bottom: 2px solid #6dc4f3;
 }
-#chat-input-mobile, #private-input-mobile {
+#chat-input-mobile,
+#private-input-mobile {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
@@ -216,7 +200,8 @@ button:hover {
   color: #a4e6ff;
   border-radius: 5px;
 }
-#chat-history-mobile div, #private-history-mobile div {
+#chat-history-mobile div,
+#private-history-mobile div {
   background: #1f1f1f;
   padding: 8px;
   margin: 5px 0;
