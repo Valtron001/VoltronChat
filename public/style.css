@@ -51,6 +51,7 @@ body {
   flex-direction: column;
   margin: 0;
   height: calc(100vh - 40px);
+  min-height: 0;
 }
 
 /* 🔹 Заголовки */
@@ -86,10 +87,11 @@ body {
 /* 🔹 История */
 #chat-history-desktop,
 #private-history-desktop {
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto; /* только эти области прокручиваются */
   padding-right: 5px;
   margin-bottom: 10px;
+  min-height: 0;
 }
 #chat-history-desktop div,
 #private-history-desktop div {
@@ -121,6 +123,19 @@ button {
 button:hover {
   background: #1a1a1a;
   box-shadow: 0 0 8px #6dc4f3;
+}
+
+/* Группа инпут+кнопка всегда внизу */
+.chat-center input[type="text"],
+.chat-center button,
+.sidebar-right input[type="text"],
+.sidebar-right button {
+  margin-bottom: 0;
+}
+
+.chat-center,
+.sidebar-right {
+  gap: 8px;
 }
 
 /* 🔹 Списки */
