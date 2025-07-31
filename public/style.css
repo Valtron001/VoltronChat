@@ -154,9 +154,16 @@ button:hover {
 .input-row input[type="text"] {
   flex: 1 1 0;
   min-width: 0;
+  height: 40px;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 .input-row button {
   flex-shrink: 0;
+  height: 40px;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 /* 🔹 Списки */

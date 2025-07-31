@@ -56,5 +56,29 @@
   <!-- Подключение Socket.IO и chat.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="chat.js"></script>
+  <script>
+// Отправка по Enter для общего чата
+const chatInput = document.getElementById('chat-input-desktop');
+const chatSend = document.getElementById('chat-send-desktop');
+if (chatInput && chatSend) {
+  chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      chatSend.click();
+      e.preventDefault();
+    }
+  });
+}
+// Отправка по Enter для лички
+const privateInput = document.getElementById('private-input-desktop');
+const privateSend = document.getElementById('private-send-desktop');
+if (privateInput && privateSend) {
+  privateInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      privateSend.click();
+      e.preventDefault();
+    }
+  });
+}
+</script>
 </body>
 </html>
