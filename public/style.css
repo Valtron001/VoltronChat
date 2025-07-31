@@ -5,6 +5,8 @@ body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #121212; /* Глубокий чёрный */
   color: #a4e6ff; /* Светло-голубой текст */
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* 🔹 Лого */
@@ -85,7 +87,7 @@ body {
 #chat-history-desktop,
 #private-history-desktop {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* только эти области прокручиваются */
   padding-right: 5px;
   margin-bottom: 10px;
 }
