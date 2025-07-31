@@ -12,10 +12,17 @@
     <img src="/images/logo.png" alt="Chat Logo" class="logo-img" />
   </div>
 
+  <!-- 🔹 Мобильные вкладки -->
+  <div class="mobile-tabs">
+    <button class="tab" data-screen="online" title="Онлайн">465</button>
+    <button class="tab" data-screen="chat" title="Общий чат">4ac</button>
+    <button class="tab" data-screen="private" title="Личка">4e8</button>
+  </div>
+
   <!-- 🔹 Основной контейнер -->
   <div class="chat-container">
     <!-- 🟢 Онлайн -->
-    <div class="sidebar-left">
+    <div class="sidebar-left screen" id="screen-online">
       <div class="column-headers">
         <div class="column-title">Онлайн</div>
         <form action="/logout" method="POST">
@@ -26,7 +33,7 @@
     </div>
 
     <!-- 💬 Общий чат -->
-    <div class="chat-center">
+    <div class="chat-center screen" id="screen-chat">
       <div class="column-headers">
         <div class="column-title">Общий чат</div>
       </div>
@@ -38,7 +45,7 @@
     </div>
 
     <!-- ✉️ Личка -->
-    <div class="sidebar-right" id="private-zone">
+    <div class="sidebar-right screen" id="screen-private">
       <div class="column-headers">
         <div class="column-title">Личка</div>
       </div>

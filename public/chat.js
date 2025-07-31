@@ -18,6 +18,27 @@ window.onload = () => {
     });
   });
 
+  // Мобильное переключение экранов
+  const tabs = document.querySelectorAll('.tab');
+  const screens = document.querySelectorAll('.screen');
+  function activateTab(tabName) {
+    screens.forEach(s => s.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
+    const activeScreen = document.getElementById('screen-' + tabName);
+    if (activeScreen) activeScreen.classList.add('active');
+    const activeTab = document.querySelector('.tab[data-screen="' + tabName + '"]');
+    if (activeTab) activeTab.classList.add('active');
+  }
+  if (tabs.length) {
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateTab(tab.dataset.screen);
+      });
+    });
+    // По умолчанию показываем общий чат
+    activateTab('chat');
+  }
+
   // 💬 Отправка общего сообщения
   const chatInput = document.getElementById(isMobile ? "chat-input-mobile" : "chat-input-desktop");
   const chatSend = document.getElementById(isMobile ? "chat-send-mobile" : "chat-send-desktop");
