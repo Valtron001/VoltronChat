@@ -166,6 +166,49 @@ button:hover {
   margin: 0;
 }
 
+/* Единое поле ввода и кнопки отправки */
+.unified-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  background: #1a1a1a;
+  z-index: 2;
+  padding: 10px 0 10px 0;
+}
+#unified-input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 40px;
+  font-size: 16px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #6dc4f3;
+  background: #0e0e0e;
+  color: #a4e6ff;
+  padding: 0 10px;
+}
+#chat-send, #private-send {
+  height: 40px;
+  width: 48px;
+  font-size: 22px;
+  border-radius: 5px;
+  border: 1px solid #6dc4f3;
+  background: #0e0e0e;
+  color: #6dc4f3;
+  cursor: pointer;
+  transition: 0.2s;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#chat-send:disabled, #private-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* 🔹 Списки */
 ul {
   list-style: none;
@@ -264,6 +307,18 @@ li:hover {
   }
   .input-row {
     padding-bottom: 10px;
+  }
+  .unified-input-row {
+    padding: 8px 0 8px 0;
+  }
+  #unified-input {
+    font-size: 15px;
+    height: 36px;
+  }
+  #chat-send, #private-send {
+    height: 36px;
+    width: 40px;
+    font-size: 18px;
   }
 }
 

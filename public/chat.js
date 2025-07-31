@@ -1,22 +1,47 @@
 window.onload = () => {
   const socket = io(); // подключение к сокету
   const isMobile = window.innerWidth <= 768;
+  // --- Новый unified input ---
   let activePrivate = null;
-  const currentUser = window.currentUser || "Вы";
-  const notifSound = document.getElementById("notif");
+  const unifiedInput = document.getElementById("unified-input");
+  const chatSendBtn = document.getElementById("chat-send");
+  const privateSendBtn = document.getElementById("private-send");
+  const chatHistory = document.getElementById("chat-history-desktop");
+  const privateHistory = document.getElementById("private-history-desktop");
 
-  // 🔄 Переключение экранов (мобилка)
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      const target = tab.dataset.screen;
-      const activeScreen = document.querySelector(`#screen-${target}`);
-      if (activeScreen) activeScreen.classList.add("active");
+  // Выбор пользователя для лички
+  function setActivePrivate(username) {
+    activePrivate = username;
+    if (unifiedInput) {
+      unifiedInput.value = `@${username}, `;
+      unifiedInput.focus();
+      // Перемещаем курсор в конец
+      unifiedInput.setSelectionRange(unifiedInput.value.length, unifiedInput.value.length);
+    }
+    privateSendBtn.disabled = false;
+  }
 
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
+  // Обработка клика по онлайн-пользователю
+  function handleUserClick(user) {
+    setActivePrivate(user);
+    // Переключаемся на личку (моб/десктоп)
+    const privateTab = document.querySelector('.tab[data-screen="private"]');
+    if (privateTab) privateTab.click();
+  }
+
+  // Навешиваем обработчик на онлайн-список (делегирование)
+  function updateOnlineList(onlineList, users) {
+    if (!onlineList) return;
+    onlineList.innerHTML = "";
+    users.forEach(user => {
+      const li = document.createElement("li");
+      li.textContent = user;
+      li.classList.add("user-item");
+      li.dataset.username = user;
+      onlineList.appendChild(li);
+      li.addEventListener("click", () => handleUserClick(user));
     });
-  });
+  }
 
   // Мобильное переключение экранов
   const tabs = document.querySelectorAll('.tab');
@@ -39,42 +64,36 @@ window.onload = () => {
     activateTab('chat');
   }
 
-  // 💬 Отправка общего сообщения
-  const chatInput = document.getElementById("chat-input-desktop");
-  const chatSend = document.getElementById("chat-send-desktop");
-  const chatHistory = document.getElementById("chat-history-desktop");
-
-  if (chatSend && chatInput) {
-    chatSend.addEventListener("click", () => {
-      const msg = chatInput.value.trim();
+  // --- Отправка в общий чат ---
+  if (chatSendBtn && unifiedInput) {
+    chatSendBtn.addEventListener("click", () => {
+      const msg = unifiedInput.value.trim();
       if (!msg) return;
       socket.emit("chat message", msg);
-      chatInput.value = "";
+      unifiedInput.value = "";
+      activePrivate = null;
+      privateSendBtn.disabled = true;
     });
   }
 
-  // ✉️ Отправка лички
-  const privateInput = document.getElementById("private-input-desktop");
-  const privateSend = document.getElementById("private-send-desktop");
-  const privateHistory = document.getElementById("private-history-desktop");
-
-  if (privateSend && privateInput) {
-    privateSend.addEventListener("click", async () => {
-      const text = privateInput.value.trim();
+  // --- Отправка в личку ---
+  if (privateSendBtn && unifiedInput) {
+    privateSendBtn.addEventListener("click", async () => {
+      const text = unifiedInput.value.replace(/^@[^,]+,\s*/, "").trim();
       if (!text || !activePrivate) return;
-
       try {
         const res = await fetch("/private/send", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `to=${activePrivate}&text=${encodeURIComponent(text)}`
         });
-
         if (res.ok) {
           const line = document.createElement("div");
           line.textContent = `${currentUser}: ${text}`;
           if (privateHistory) privateHistory.appendChild(line);
-          privateInput.value = "";
+          unifiedInput.value = "";
+          activePrivate = null;
+          privateSendBtn.disabled = true;
         }
       } catch (err) {
         console.error("🚫 Ошибка отправки лички:", err.message);
@@ -82,16 +101,33 @@ window.onload = () => {
     });
   }
 
-  // 🟢 Получение общего сообщения
+  // --- Включение/отключение кнопки лички ---
+  if (privateSendBtn) privateSendBtn.disabled = true;
+
+  // --- Enter ---
+  if (unifiedInput) {
+    unifiedInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        if (activePrivate) {
+          privateSendBtn.click();
+        } else {
+          chatSendBtn.click();
+        }
+        e.preventDefault();
+      }
+    });
+  }
+
+  // --- Получение общего сообщения ---
   socket.on("chat message", msg => {
     if (chatHistory) {
       const item = document.createElement("div");
-      item.textContent = msg.text || msg; // поддержка формата {text, time}
+      item.textContent = msg.text || msg;
       chatHistory.appendChild(item);
     }
   });
 
-  // 🔔 Получение лички
+  // --- Получение лички ---
   socket.on("private notify", ({ from, text }) => {
     const line = document.createElement("div");
     line.textContent = `${from}: ${text}`;
@@ -99,32 +135,11 @@ window.onload = () => {
     if (notifSound) notifSound.play();
   });
 
-  // 📌 Обновление списка онлайн
+  // --- Обновление списка онлайн ---
   socket.on("online users", users => {
     const onlineListDesktop = document.getElementById("online-users-desktop");
     const onlineListMobile = document.getElementById("online-users-mobile");
-
-    [onlineListDesktop, onlineListMobile].forEach(onlineList => {
-      if (!onlineList) return;
-      onlineList.innerHTML = "";
-      users.forEach(user => {
-        const li = document.createElement("li");
-        li.textContent = user;
-        li.classList.add("user-item");
-        li.dataset.username = user;
-        onlineList.appendChild(li);
-        // 📌 Привязка обработчика выбора юзера
-        li.addEventListener("click", () => {
-          activePrivate = user;
-          document.querySelectorAll(".user-item").forEach(u => u.classList.remove("active"));
-          li.classList.add("active");
-          // 🎯 Показ десктопной лички
-          const privateZone = document.getElementById("private-zone");
-          if (privateZone) privateZone.style.display = "block";
-          const title = document.getElementById("private-title-desktop");
-          if (title) title.textContent = `Личка с ${activePrivate}`;
-        });
-      });
-    });
+    updateOnlineList(onlineListDesktop, users);
+    updateOnlineList(onlineListMobile, users);
   });
 };

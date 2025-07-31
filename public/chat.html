@@ -39,10 +39,6 @@
         <div class="column-title">Общий чат</div>
       </div>
       <div id="chat-history-desktop"></div>
-      <div class="input-row">
-        <input type="text" id="chat-input-desktop" placeholder="Напиши сообщение..." />
-        <button id="chat-send-desktop">Отправить</button>
-      </div>
     </div>
 
     <!-- ✉️ Личка -->
@@ -51,10 +47,6 @@
         <div class="column-title">Личка</div>
       </div>
       <div id="private-history-desktop"></div>
-      <div class="input-row">
-        <input type="text" id="private-input-desktop" placeholder="Личное сообщение..." />
-        <button id="private-send-desktop">Отправить</button>
-      </div>
     </div>
   </div>
 
@@ -83,6 +75,22 @@ if (privateInput && privateSend) {
   privateInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       privateSend.click();
+      e.preventDefault();
+    }
+  });
+}
+// Отправка по Enter для унифицированного ввода
+const unifiedInput = document.getElementById('unified-input');
+const chatSendButton = document.getElementById('chat-send');
+const privateSendButton = document.getElementById('private-send');
+if (unifiedInput && chatSendButton && privateSendButton) {
+  unifiedInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      if (document.querySelector('.screen:target') === document.getElementById('screen-chat')) {
+        chatSendButton.click();
+      } else if (document.querySelector('.screen:target') === document.getElementById('screen-private')) {
+        privateSendButton.click();
+      }
       e.preventDefault();
     }
   });
