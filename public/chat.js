@@ -65,13 +65,13 @@ window.onload = () => {
   socket.on("chat message", msg => {
     if (chatHistory) {
       const item = document.createElement("div");
-      item.textContent = msg;
+      item.textContent = msg.text || msg; // поддержка формата {text, time}
       chatHistory.appendChild(item);
     }
   });
 
   // 🔔 Получение лички
-  socket.on("private message", ({ from, text }) => {
+  socket.on("private notify", ({ from, text }) => {
     const line = document.createElement("div");
     line.textContent = `${from}: ${text}`;
     if (privateHistory) privateHistory.appendChild(line);
@@ -79,7 +79,7 @@ window.onload = () => {
   });
 
   // 📌 Обновление списка онлайн
-  socket.on("update online", users => {
+  socket.on("online users", users => {
     const onlineList = document.getElementById(
       isMobile ? "online-users-mobile" : "online-users-desktop"
     );
@@ -90,14 +90,14 @@ window.onload = () => {
 
     users.forEach(user => {
       const li = document.createElement("li");
-      li.textContent = user.username;
+      li.textContent = user;
       li.classList.add("user-item");
-      li.dataset.username = user.username;
+      li.dataset.username = user;
       onlineList.appendChild(li);
 
       // 📌 Привязка обработчика выбора юзера
       li.addEventListener("click", () => {
-        activePrivate = user.username;
+        activePrivate = user;
 
         document.querySelectorAll(".user-item").forEach(u => u.classList.remove("active"));
         li.classList.add("active");
