@@ -40,9 +40,9 @@ window.onload = () => {
   }
 
   // 💬 Отправка общего сообщения
-  const chatInput = document.getElementById(isMobile ? "chat-input-mobile" : "chat-input-desktop");
-  const chatSend = document.getElementById(isMobile ? "chat-send-mobile" : "chat-send-desktop");
-  const chatHistory = document.getElementById(isMobile ? "chat-history-mobile" : "chat-history-desktop");
+  const chatInput = document.getElementById("chat-input-desktop");
+  const chatSend = document.getElementById("chat-send-desktop");
+  const chatHistory = document.getElementById("chat-history-desktop");
 
   if (chatSend && chatInput) {
     chatSend.addEventListener("click", () => {
@@ -54,9 +54,9 @@ window.onload = () => {
   }
 
   // ✉️ Отправка лички
-  const privateInput = document.getElementById(isMobile ? "private-input-mobile" : "private-input-desktop");
-  const privateSend = document.getElementById(isMobile ? "private-send-mobile" : "private-send-desktop");
-  const privateHistory = document.getElementById(isMobile ? "private-history-mobile" : "private-history-desktop");
+  const privateInput = document.getElementById("private-input-desktop");
+  const privateSend = document.getElementById("private-send-desktop");
+  const privateHistory = document.getElementById("private-history-desktop");
 
   if (privateSend && privateInput) {
     privateSend.addEventListener("click", async () => {
@@ -101,34 +101,29 @@ window.onload = () => {
 
   // 📌 Обновление списка онлайн
   socket.on("online users", users => {
-    const onlineList = document.getElementById(
-      isMobile ? "online-users-mobile" : "online-users-desktop"
-    );
+    const onlineListDesktop = document.getElementById("online-users-desktop");
+    const onlineListMobile = document.getElementById("online-users-mobile");
 
-    if (!onlineList) return;
-
-    onlineList.innerHTML = "";
-
-    users.forEach(user => {
-      const li = document.createElement("li");
-      li.textContent = user;
-      li.classList.add("user-item");
-      li.dataset.username = user;
-      onlineList.appendChild(li);
-
-      // 📌 Привязка обработчика выбора юзера
-      li.addEventListener("click", () => {
-        activePrivate = user;
-
-        document.querySelectorAll(".user-item").forEach(u => u.classList.remove("active"));
-        li.classList.add("active");
-
-        // 🎯 Показ десктопной лички
-        const privateZone = document.getElementById("private-zone");
-        if (privateZone) privateZone.style.display = "block";
-
-        const title = document.getElementById("private-title-desktop");
-        if (title) title.textContent = `Личка с ${activePrivate}`;
+    [onlineListDesktop, onlineListMobile].forEach(onlineList => {
+      if (!onlineList) return;
+      onlineList.innerHTML = "";
+      users.forEach(user => {
+        const li = document.createElement("li");
+        li.textContent = user;
+        li.classList.add("user-item");
+        li.dataset.username = user;
+        onlineList.appendChild(li);
+        // 📌 Привязка обработчика выбора юзера
+        li.addEventListener("click", () => {
+          activePrivate = user;
+          document.querySelectorAll(".user-item").forEach(u => u.classList.remove("active"));
+          li.classList.add("active");
+          // 🎯 Показ десктопной лички
+          const privateZone = document.getElementById("private-zone");
+          if (privateZone) privateZone.style.display = "block";
+          const title = document.getElementById("private-title-desktop");
+          if (title) title.textContent = `Личка с ${activePrivate}`;
+        });
       });
     });
   });
