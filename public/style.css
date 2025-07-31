@@ -87,10 +87,10 @@ body {
 /* 🔹 История */
 #chat-history-desktop,
 #private-history-desktop {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   overflow-y: auto; /* только эти области прокручиваются */
   padding-right: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   min-height: 0;
 }
 #chat-history-desktop div,
@@ -136,6 +136,19 @@ button:hover {
 .chat-center,
 .sidebar-right {
   gap: 8px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.input-row input[type="text"] {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.input-row button {
+  flex-shrink: 0;
 }
 
 /* 🔹 Списки */
