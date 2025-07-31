@@ -20,17 +20,26 @@ body {
 /* 🔹 Контейнер чата */
 .chat-container {
   display: grid;
-  grid-template-columns: 220px 1fr 220px;
+  grid-template-columns: 220px 1fr 1fr;
   gap: 20px;
   max-width: 1440px;
   margin: 0 auto;
   padding: 15px;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
 /* 🔹 Колонки */
-.sidebar-left,
+.sidebar-left {
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+}
+
 .chat-center,
 .sidebar-right {
+  min-width: 0;
+  max-width: 100%;
   background-color: #1a1a1a;
   border-radius: 8px;
   border: 1px solid #6dc4f340;
@@ -38,6 +47,8 @@ body {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  height: calc(100vh - 40px);
 }
 
 /* 🔹 Заголовки */
@@ -128,15 +139,19 @@ li:hover {
 }
 
 /* 🔹 Адаптив */
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .chat-container {
     display: block;
+    height: auto;
     padding: 10px;
   }
   .sidebar-left,
   .chat-center,
   .sidebar-right {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     margin-bottom: 15px;
+    height: auto;
   }
 }
