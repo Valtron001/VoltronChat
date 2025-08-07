@@ -53,6 +53,7 @@ body {
   flex: 1 1 0;
   min-height: 0;
   height: 100%;
+  justify-content: flex-end;
 }
 
 /* 🔹 Заголовки */
@@ -93,6 +94,7 @@ body {
   padding-right: 5px;
   margin-bottom: 0;
   min-height: 0;
+  max-height: none;
 }
 #chat-history-desktop div,
 #private-history-desktop div {
@@ -174,6 +176,10 @@ button:hover {
   background: #1a1a1a;
   z-index: 2;
   padding: 10px 0 10px 0;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 #unified-input {
   flex: 1 1 0;
@@ -205,6 +211,12 @@ button:hover {
 #chat-send:disabled, #private-send:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Исправление для flex: чтобы поле ввода не сжималось */
+.unified-input-row input[type="text"] {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 /* 🔹 Списки */
