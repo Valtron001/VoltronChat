@@ -46,15 +46,20 @@ app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
   if (password !== repeat) return res.sendFile(__dirname + "/public/error.html");
 
-  const existingNicknames = Array.from(onlineUsers.values());
-  if (existingNicknames.includes(nickname)) return res.sendFile(__dirname + "/public/error.html");
+  // Проверка уникальности nickname среди всех пользователей
+  const { data: nickUsers, error: nickError } = await supabase
+    .from("users")
+    .select("nickname")
+    .eq("nickname", nickname)
+    .limit(1);
+  if (nickError || (nickUsers && nickUsers.length > 0)) return res.sendFile(__dirname + "/public/error.html");
 
+  // Проверка уникальности login
   const { data: users, error: selectError } = await supabase
     .from("users")
     .select("login")
     .eq("login", login)
     .limit(1);
-
   if (selectError || (users && users.length > 0)) return res.sendFile(__dirname + "/public/error.html");
 
   const hash = await bcrypt.hash(password, 10);
@@ -72,10 +77,10 @@ app.post("/register", async (req, res) => {
 
 // 📌 Вход
 app.post("/login", async (req, res) => {
-  const { login, password, nickname } = req.body;
+  const { login, password } = req.body;
   const { data: user, error } = await supabase
     .from("users")
-    .select("password_hash")
+    .select("password_hash, nickname")
     .eq("login", login)
     .single();
 
@@ -84,12 +89,13 @@ app.post("/login", async (req, res) => {
   const match = await bcrypt.compare(password, user.password_hash);
   if (!match) return res.sendFile(__dirname + "/public/error.html");
 
+  // Проверка, что nickname не занят среди онлайн
   const activeNicks = Array.from(onlineUsers.values());
-  if (activeNicks.includes(nickname)) return res.sendFile(__dirname + "/public/error.html");
+  if (activeNicks.includes(user.nickname)) return res.sendFile(__dirname + "/public/error.html");
 
   req.session.user = login;
-  req.session.nickname = nickname;
-  logAction(`✅ Вошёл: ${login} / Ник: ${nickname}`);
+  req.session.nickname = user.nickname;
+  logAction(`✅ Вошёл: ${login} / Ник: ${user.nickname}`);
   res.redirect("/chat");
 });
 
