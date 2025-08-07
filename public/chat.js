@@ -135,6 +135,13 @@ window.onload = () => {
     if (notifSound) notifSound.play();
   });
 
+  // --- Очистка лички только в общем чате ---
+  socket.on("clear private in chat", () => {
+    // Если в общем чате отображаются личные сообщения, очистить их
+    const privateInChat = document.getElementById("private-in-chat");
+    if (privateInChat) privateInChat.innerHTML = "";
+  });
+
   // --- Обновление списка онлайн ---
   socket.on("online users", users => {
     const onlineListDesktop = document.getElementById("online-users-desktop");
