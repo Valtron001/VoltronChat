@@ -44,7 +44,10 @@ app.get("/chat", (req, res) => {
 // 📌 Регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname } = req.body;
-  if (password !== repeat) return res.sendFile(__dirname + "/public/error.html");
+  if (password !== repeat) {
+    console.error("Пароли не совпадают");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   // Проверка уникальности nickname среди всех пользователей
   const { data: nickUsers, error: nickError } = await supabase
@@ -52,7 +55,14 @@ app.post("/register", async (req, res) => {
     .select("nickname")
     .eq("nickname", nickname)
     .limit(1);
-  if (nickError || (nickUsers && nickUsers.length > 0)) return res.sendFile(__dirname + "/public/error.html");
+  if (nickError) {
+    console.error("Ошибка запроса к базе (nickname):", nickError);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
+  if (nickUsers && nickUsers.length > 0) {
+    console.error("Ник уже занят:", nickname);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   // Проверка уникальности login
   const { data: users, error: selectError } = await supabase
@@ -60,14 +70,24 @@ app.post("/register", async (req, res) => {
     .select("login")
     .eq("login", login)
     .limit(1);
-  if (selectError || (users && users.length > 0)) return res.sendFile(__dirname + "/public/error.html");
+  if (selectError) {
+    console.error("Ошибка запроса к базе (login):", selectError);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
+  if (users && users.length > 0) {
+    console.error("Логин уже занят:", login);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   const hash = await bcrypt.hash(password, 10);
   const { error: insertError } = await supabase
     .from("users")
     .insert([{ login, password_hash: hash, nickname }]);
 
-  if (insertError) return res.sendFile(__dirname + "/public/error.html");
+  if (insertError) {
+    console.error("Ошибка вставки пользователя:", insertError);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   req.session.user = login;
   req.session.nickname = nickname;
@@ -84,14 +104,23 @@ app.post("/login", async (req, res) => {
     .eq("login", login)
     .single();
 
-  if (error || !user) return res.sendFile(__dirname + "/public/error.html");
+  if (error || !user) {
+    console.error("Пользователь не найден или ошибка запроса:", error);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   const match = await bcrypt.compare(password, user.password_hash);
-  if (!match) return res.sendFile(__dirname + "/public/error.html");
+  if (!match) {
+    console.error("Пароль не совпадает для:", login);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   // Проверка, что nickname не занят среди онлайн
   const activeNicks = Array.from(onlineUsers.values());
-  if (activeNicks.includes(user.nickname)) return res.sendFile(__dirname + "/public/error.html");
+  if (activeNicks.includes(user.nickname)) {
+    console.error("Ник уже онлайн:", user.nickname);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   req.session.user = login;
   req.session.nickname = user.nickname;
