@@ -19,6 +19,15 @@ window.onload = () => {
       unifiedInput.setSelectionRange(unifiedInput.value.length, unifiedInput.value.length);
     }
     privateSendBtn.disabled = false;
+    // Показываем поле ввода в личке
+    const privateInputRow = document.getElementById('private-input-row');
+    if (privateInputRow) privateInputRow.style.display = '';
+    // Сохраняем выбранного пользователя для лички
+    const privateInput = document.getElementById('unified-input-private');
+    if (privateInput) {
+      privateInput.value = '';
+      privateInput.focus();
+    }
   }
 
   // Обработка клика по онлайн-пользователю
@@ -97,6 +106,57 @@ window.onload = () => {
         }
       } catch (err) {
         console.error("🚫 Ошибка отправки лички:", err.message);
+      }
+    });
+  }
+
+  // --- Выбор пользователя для лички ---
+  function setActivePrivate(username) {
+    activePrivate = username;
+    if (unifiedInput) {
+      unifiedInput.value = `@${username}, `;
+      unifiedInput.focus();
+      unifiedInput.setSelectionRange(unifiedInput.value.length, unifiedInput.value.length);
+    }
+    privateSendBtn.disabled = false;
+    // Показываем поле ввода в личке
+    const privateInputRow = document.getElementById('private-input-row');
+    if (privateInputRow) privateInputRow.style.display = '';
+    // Сохраняем выбранного пользователя для лички
+    const privateInput = document.getElementById('unified-input-private');
+    if (privateInput) {
+      privateInput.value = '';
+      privateInput.focus();
+    }
+  }
+
+  // --- Отправка лички из личного поля ---
+  const privateInput = document.getElementById('unified-input-private');
+  const privateSendBtn2 = document.getElementById('private-send');
+  if (privateSendBtn2 && privateInput) {
+    privateSendBtn2.addEventListener('click', async () => {
+      const text = privateInput.value.trim();
+      if (!text || !activePrivate) return;
+      try {
+        const res = await fetch('/private/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `to=${activePrivate}&text=${encodeURIComponent(text)}`
+        });
+        if (res.ok) {
+          const line = document.createElement('div');
+          line.textContent = `${currentUser}: ${text}`;
+          if (privateHistory) privateHistory.appendChild(line);
+          privateInput.value = '';
+        }
+      } catch (err) {
+        console.error('🚫 Ошибка отправки лички:', err.message);
+      }
+    });
+    privateInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        privateSendBtn2.click();
+        e.preventDefault();
       }
     });
   }
