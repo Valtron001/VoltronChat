@@ -149,4 +149,22 @@ window.onload = () => {
     updateOnlineList(onlineListDesktop, users);
     updateOnlineList(onlineListMobile, users);
   });
+
+  // --- Смайлики ---
+  const emojiToggle = document.getElementById('emoji-toggle');
+  const emojiRow = document.querySelector('.emoji-row');
+  if (emojiToggle && emojiRow) {
+    emojiToggle.addEventListener('click', () => {
+      emojiRow.classList.toggle('active');
+    });
+  }
+  document.querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('unified-input');
+      if (input) {
+        input.value += btn.textContent;
+        input.focus();
+      }
+    });
+  });
 };

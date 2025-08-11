@@ -236,6 +236,50 @@ li:hover {
   background: #2f2f2f;
 }
 
+/* 🔹 Эмоции */
+.emoji-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  transition: 0.2s;
+}
+.emoji-btn {
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+.emoji-btn:hover {
+  background: #252525;
+}
+#emoji-toggle {
+  font-size: 22px;
+  background: none;
+  border: 1px solid #6dc4f3;
+  color: #6dc4f3;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 4px;
+  margin-left: 0;
+  transition: 0.2s;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#emoji-toggle:hover {
+  background: #252525;
+}
+.emoji-row {
+  display: none;
+}
+.emoji-row.active {
+  display: flex;
+}
+
 /* 🔹 Адаптив */
 @media (max-width: 1200px) {
   .chat-container {
