@@ -181,7 +181,29 @@ button:hover {
   left: 0;
   right: 0;
 }
+#emoji-toggle {
+  order: 0;
+  height: 40px;
+  width: 48px;
+  font-size: 22px;
+  border-radius: 5px;
+  border: 1px solid #6dc4f3;
+  background: #0e0e0e;
+  color: #6dc4f3;
+  cursor: pointer;
+  margin-right: 0;
+  margin-left: 0;
+  transition: 0.2s;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#emoji-toggle:hover {
+  background: #252525;
+}
 #unified-input {
+  order: 1;
   flex: 1 1 0;
   min-width: 0;
   height: 40px;
@@ -194,6 +216,7 @@ button:hover {
   padding: 0 10px;
 }
 #chat-send, #private-send {
+  order: 2;
   height: 40px;
   width: 48px;
   font-size: 22px;

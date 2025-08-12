@@ -47,13 +47,20 @@
         <button type="button" class="emoji-btn">👍</button>
         <button type="button" class="emoji-btn">😎</button>
         <button type="button" class="emoji-btn">🥳</button>
+        <button type="button" class="emoji-btn">😢</button>
+        <button type="button" class="emoji-btn">😭</button>
+        <button type="button" class="emoji-btn">😡</button>
+        <button type="button" class="emoji-btn">🤬</button>
       </div>
       <!-- Единое поле ввода и кнопки отправки -->
       <div class="unified-input-row">
-        <input id="unified-input" type="text" placeholder="Введите сообщение..." autocomplete="off" />
         <button id="emoji-toggle" title="Смайлики">😊</button>
-        <button id="chat-send" title="Отправить в общий чат">💬</button>
-        <button id="private-send" title="Отправить в личку">✉️</button>
+        <input id="unified-input" type="text" placeholder="Введите сообщение..." autocomplete="off" />
+        <button id="chat-send" title="Отправить в общий чат">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 26L26 14L2 2V11L19 14L2 17V26Z" fill="#6dc4f3"/>
+          </svg>
+        </button>
       </div>
     </div>
 
