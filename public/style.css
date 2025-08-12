@@ -57,31 +57,6 @@ body {
   max-height: 100vh;
   overflow: hidden;
   position: relative;
-  padding-bottom: 50px; /* место для нижней границы и инпута */
-}
-.chat-center::after {
-  content: '';
-  position: absolute;
-  top: 10px;
-  right: -10px;
-  width: 2px;
-  height: calc(100% - 20px);
-  background: linear-gradient(to bottom, #6dc4f3 60%, transparent 100%);
-  border-radius: 2px;
-  opacity: 0.7;
-  z-index: 1;
-}
-.sidebar-right::before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: -10px;
-  width: 2px;
-  height: calc(100% - 20px);
-  background: linear-gradient(to bottom, #6dc4f3 60%, transparent 100%);
-  border-radius: 2px;
-  opacity: 0.7;
-  z-index: 1;
 }
 
 @media (min-width: 1201px) {
@@ -90,24 +65,27 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 50px; /* выше инпута */
+    bottom: 0; /* прямо над инпутом */
     height: 3px;
     background: linear-gradient(to right, #6dc4f3 80%, transparent 100%);
     border-radius: 2px;
     opacity: 0.9;
-    z-index: 10;
+    z-index: 11;
   }
   .sidebar-right::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 50px; /* выше инпута */
+    bottom: 0; /* прямо над инпутом */
     height: 3px;
     background: linear-gradient(to right, #6dc4f3 80%, transparent 100%);
     border-radius: 2px;
     opacity: 0.9;
-    z-index: 10;
+    z-index: 11;
+  }
+  .unified-input-row {
+    z-index: 12;
   }
 }
 @media (max-width: 1200px) {
