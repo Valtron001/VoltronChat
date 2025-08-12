@@ -12,12 +12,6 @@ window.onload = () => {
   // Выбор пользователя для лички
   function setActivePrivate(username) {
     activePrivate = username;
-    if (unifiedInput) {
-      unifiedInput.value = `@${username}, `;
-      unifiedInput.focus();
-      // Перемещаем курсор в конец
-      unifiedInput.setSelectionRange(unifiedInput.value.length, unifiedInput.value.length);
-    }
     privateSendBtn.disabled = false;
     // Показываем поле ввода в личке
     const privateInputRow = document.getElementById('private-input-row');
@@ -27,6 +21,11 @@ window.onload = () => {
     if (privateInput) {
       privateInput.value = '';
       privateInput.focus();
+    }
+    // Обновляем заголовок лички
+    const privateHeader = document.getElementById('private-header');
+    if (privateHeader) {
+      privateHeader.textContent = `Личка с ${username}`;
     }
   }
 
@@ -113,11 +112,6 @@ window.onload = () => {
   // --- Выбор пользователя для лички ---
   function setActivePrivate(username) {
     activePrivate = username;
-    if (unifiedInput) {
-      unifiedInput.value = `@${username}, `;
-      unifiedInput.focus();
-      unifiedInput.setSelectionRange(unifiedInput.value.length, unifiedInput.value.length);
-    }
     privateSendBtn.disabled = false;
     // Показываем поле ввода в личке
     const privateInputRow = document.getElementById('private-input-row');
@@ -127,6 +121,11 @@ window.onload = () => {
     if (privateInput) {
       privateInput.value = '';
       privateInput.focus();
+    }
+    // Обновляем заголовок лички
+    const privateHeader = document.getElementById('private-header');
+    if (privateHeader) {
+      privateHeader.textContent = `Личка с ${username}`;
     }
   }
 
