@@ -28,8 +28,8 @@ body {
   margin: 0 auto;
   padding: 15px;
   box-sizing: border-box;
+  height: calc(100vh - 60px); /* как было раньше */
   min-height: 0;
-  height: auto;
 }
 
 /* 🔹 Колонки */
@@ -53,10 +53,11 @@ body {
   margin: 0;
   flex: 1 1 0;
   min-height: 0;
-  height: auto;
-  max-height: 100vh;
+  height: 100%;
+  max-height: none;
   overflow: hidden;
   position: relative;
+  padding-bottom: 16px; /* небольшой отступ для видимости границы */
 }
 
 @media (min-width: 1201px) {
@@ -65,7 +66,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0; /* прямо над инпутом */
+    bottom: 0;
     height: 3px;
     background: linear-gradient(to right, #6dc4f3 80%, transparent 100%);
     border-radius: 2px;
@@ -77,7 +78,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0; /* прямо над инпутом */
+    bottom: 0;
     height: 3px;
     background: linear-gradient(to right, #6dc4f3 80%, transparent 100%);
     border-radius: 2px;
