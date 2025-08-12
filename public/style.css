@@ -54,6 +54,66 @@ body {
   min-height: 0;
   height: 100%;
   justify-content: flex-end;
+  position: relative;
+}
+.chat-center::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: -10px;
+  width: 2px;
+  height: calc(100% - 20px);
+  background: linear-gradient(to bottom, #6dc4f3 60%, transparent 100%);
+  border-radius: 2px;
+  opacity: 0.7;
+  z-index: 1;
+}
+.sidebar-right::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: -10px;
+  width: 2px;
+  height: calc(100% - 20px);
+  background: linear-gradient(to bottom, #6dc4f3 60%, transparent 100%);
+  border-radius: 2px;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* Вертикальные разделительные линии между колонками на десктопе */
+@media (min-width: 1201px) {
+  .chat-center::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, #6dc4f3 40%, transparent 100%);
+    opacity: 0.5;
+    border-radius: 2px;
+    z-index: 10;
+  }
+  .sidebar-right::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, #6dc4f3 40%, transparent 100%);
+    opacity: 0.5;
+    border-radius: 2px;
+    z-index: 10;
+  }
+}
+
+@media (max-width: 1200px) {
+  .chat-center::before,
+  .sidebar-right::before {
+    display: none;
+  }
 }
 
 /* 🔹 Заголовки */
@@ -184,7 +244,7 @@ button:hover {
 #emoji-toggle {
   order: 0;
   height: 40px;
-  width: 48px;
+  width: 40px;
   font-size: 22px;
   border-radius: 5px;
   border: 1px solid #6dc4f3;
@@ -218,7 +278,7 @@ button:hover {
 #chat-send, #private-send {
   order: 2;
   height: 40px;
-  width: 48px;
+  width: 40px;
   font-size: 22px;
   border-radius: 5px;
   border: 1px solid #6dc4f3;
@@ -318,6 +378,10 @@ li:hover {
     max-width: 100%;
     margin-bottom: 15px;
     height: auto;
+  }
+  .chat-center::after,
+  .sidebar-right::before {
+    display: none;
   }
 }
 
