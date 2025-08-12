@@ -28,7 +28,7 @@ body {
   margin: 0 auto;
   padding: 15px;
   box-sizing: border-box;
-  height: calc(100vh - 70px); /* поднято на ~10px */
+  height: calc(100vh - 100px); /* поднято еще на 30px */
   min-height: 0;
 }
 
