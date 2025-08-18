@@ -44,7 +44,10 @@ app.get("/chat", (req, res) => {
 // 📌 Регистрация
 app.post("/register", async (req, res) => {
   const { login, password, repeat, nickname, nickname_color } = req.body;
-  if (password !== repeat) return res.sendFile(__dirname + "/public/error.html");
+  if (password !== repeat) {
+    console.error("Пароли не совпадают");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   // Проверка уникальности nickname среди всех пользователей
   const { data: nickUsers, error: nickError } = await supabase
@@ -52,7 +55,14 @@ app.post("/register", async (req, res) => {
     .select("nickname")
     .eq("nickname", nickname)
     .limit(1);
-  if (nickError || (nickUsers && nickUsers.length > 0)) return res.sendFile(__dirname + "/public/error.html");
+  if (nickError) {
+    console.error("Ошибка запроса к Supabase (nickname):", nickError.message);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
+  if (nickUsers && nickUsers.length > 0) {
+    console.error("Ник уже занят");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   // Проверка уникальности login
   const { data: users, error: selectError } = await supabase
@@ -60,14 +70,24 @@ app.post("/register", async (req, res) => {
     .select("login")
     .eq("login", login)
     .limit(1);
-  if (selectError || (users && users.length > 0)) return res.sendFile(__dirname + "/public/error.html");
+  if (selectError) {
+    console.error("Ошибка запроса к Supabase (login):", selectError.message);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
+  if (users && users.length > 0) {
+    console.error("Логин уже занят");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   const hash = await bcrypt.hash(password, 10);
   const { error: insertError } = await supabase
     .from("users")
     .insert([{ login, password_hash: hash, nickname, nickname_color }]);
 
-  if (insertError) return res.sendFile(__dirname + "/public/error.html");
+  if (insertError) {
+    console.error("Ошибка вставки пользователя в Supabase:", insertError.message);
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   req.session.user = login;
   req.session.nickname = nickname;
@@ -85,14 +105,23 @@ app.post("/login", async (req, res) => {
     .eq("login", login)
     .single();
 
-  if (error || !user) return res.sendFile(__dirname + "/public/error.html");
+  if (error || !user) {
+    console.error("Пользователь не найден или ошибка запроса к Supabase:", error ? error.message : "Пользователь не найден");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   const match = await bcrypt.compare(password, user.password_hash);
-  if (!match) return res.sendFile(__dirname + "/public/error.html");
+  if (!match) {
+    console.error("Пароль не совпадает");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   // Проверка, что nickname не занят среди онлайн
   const activeNicks = Array.from(onlineUsers.values());
-  if (activeNicks.includes(user.nickname)) return res.sendFile(__dirname + "/public/error.html");
+  if (activeNicks.includes(user.nickname)) {
+    console.error("Ник уже онлайн");
+    return res.sendFile(__dirname + "/public/error.html");
+  }
 
   req.session.user = login;
   req.session.nickname = user.nickname;
@@ -164,7 +193,15 @@ io.on("connection", (socket) => {
   socket.emit("chat history", recentMessages);
 
   socket.on("chat message", (msg) => {
-    const fullMsg = { text: `${nickname}: ${msg}`, time: Date.now() };
+    // msg может быть просто текстом, либо объектом
+    const nickname = socket.handshake.session.nickname;
+    const nickname_color = socket.handshake.session.nickname_color || "blue";
+    const fullMsg = {
+      text: msg,
+      time: Date.now(),
+      nickname,
+      nickname_color
+    };
     messages.push(fullMsg);
     io.emit("chat message", fullMsg);
   });

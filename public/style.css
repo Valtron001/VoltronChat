@@ -474,3 +474,13 @@ li:hover {
 /* По умолчанию скрываем мобильные вкладки на десктопе */
 .mobile-tabs { display: none; }
 @media (max-width: 768px) { .mobile-tabs { display: flex; } }
+
+/* 🔹 Цвета ника */
+.nickname-color-blue { color: #2196f3; font-weight: bold; }
+.nickname-color-green { color: #43a047; font-weight: bold; }
+.nickname-color-red { color: #e53935; font-weight: bold; }
+.nickname-color-purple { color: #8e24aa; font-weight: bold; }
+.nickname-color-orange { color: #fb8c00; font-weight: bold; }
+.nickname-color-teal { color: #009688; font-weight: bold; }
+.nickname-color-pink { color: #e91e63; font-weight: bold; }
+.nickname-color-yellow { color: #fbc02d; font-weight: bold; }

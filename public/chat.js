@@ -181,15 +181,23 @@ window.onload = () => {
   socket.on("chat message", msg => {
     if (chatHistory) {
       const item = document.createElement("div");
-      item.textContent = msg.text || msg;
+      const nickSpan = document.createElement("span");
+      nickSpan.textContent = msg.nickname + ": ";
+      nickSpan.className = "nickname-color-" + (msg.nickname_color || "blue");
+      item.appendChild(nickSpan);
+      item.appendChild(document.createTextNode(msg.text));
       chatHistory.appendChild(item);
     }
   });
 
   // --- Получение лички ---
-  socket.on("private notify", ({ from, text }) => {
+  socket.on("private notify", ({ from, text, nickname_color }) => {
     const line = document.createElement("div");
-    line.textContent = `${from}: ${text}`;
+    const nickSpan = document.createElement("span");
+    nickSpan.textContent = from + ": ";
+    nickSpan.className = "nickname-color-" + (nickname_color || "blue");
+    line.appendChild(nickSpan);
+    line.appendChild(document.createTextNode(text));
     if (privateHistory) privateHistory.appendChild(line);
     if (notifSound) notifSound.play();
   });
