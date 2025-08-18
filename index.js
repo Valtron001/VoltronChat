@@ -43,7 +43,7 @@ app.get("/chat", (req, res) => {
 
 // 📌 Регистрация
 app.post("/register", async (req, res) => {
-  const { login, password, repeat, nickname } = req.body;
+  const { login, password, repeat, nickname, nickname_color } = req.body;
   if (password !== repeat) return res.sendFile(__dirname + "/public/error.html");
 
   // Проверка уникальности nickname среди всех пользователей
@@ -65,22 +65,23 @@ app.post("/register", async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   const { error: insertError } = await supabase
     .from("users")
-    .insert([{ login, password_hash: hash, nickname }]);
+    .insert([{ login, password_hash: hash, nickname, nickname_color }]);
 
   if (insertError) return res.sendFile(__dirname + "/public/error.html");
 
   req.session.user = login;
   req.session.nickname = nickname;
-  logAction(`🔐 Зарегистрировался: ${login} / Ник: ${nickname}`);
+  req.session.nickname_color = nickname_color;
+  logAction(`🔐 Зарегистрировался: ${login} / Ник: ${nickname} / Цвет: ${nickname_color}`);
   res.redirect("/chat");
 });
 
 // 📌 Вход
 app.post("/login", async (req, res) => {
-  const { login, password } = req.body;
+  const { login, password, nickname_color } = req.body;
   const { data: user, error } = await supabase
     .from("users")
-    .select("password_hash, nickname")
+    .select("password_hash, nickname, nickname_color")
     .eq("login", login)
     .single();
 
@@ -95,7 +96,8 @@ app.post("/login", async (req, res) => {
 
   req.session.user = login;
   req.session.nickname = user.nickname;
-  logAction(`✅ Вошёл: ${login} / Ник: ${user.nickname}`);
+  req.session.nickname_color = user.nickname_color || nickname_color;
+  logAction(`✅ Вошёл: ${login} / Ник: ${user.nickname} / Цвет: ${req.session.nickname_color}`);
   res.redirect("/chat");
 });
 
