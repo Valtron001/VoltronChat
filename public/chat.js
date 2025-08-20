@@ -42,12 +42,14 @@ window.onload = () => {
     if (!onlineList) return;
     onlineList.innerHTML = "";
     users.forEach(user => {
+      // user теперь может быть объектом: {nickname, nickname_color}
       const li = document.createElement("li");
-      li.textContent = user;
+      li.textContent = user.nickname;
       li.classList.add("user-item");
-      li.dataset.username = user;
+      li.dataset.username = user.nickname;
+      li.classList.add("nickname-color-" + (user.nickname_color || "blue"));
       onlineList.appendChild(li);
-      li.addEventListener("click", () => handleUserClick(user));
+      li.addEventListener("click", () => handleUserClick(user.nickname));
     });
   }
 

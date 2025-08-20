@@ -181,9 +181,10 @@ app.get("/private/inbox", async (req, res) => {
 // 📡 Socket.IO
 io.on("connection", (socket) => {
   const nickname = socket.handshake.session.nickname;
+  const nickname_color = socket.handshake.session.nickname_color || "blue";
   if (!nickname) return;
 
-  onlineUsers.set(socket.id, nickname);
+  onlineUsers.set(socket.id, { nickname, nickname_color });
   socket.emit("your nickname", nickname);
   io.emit("online users", Array.from(onlineUsers.values()));
   logAction(`🟢 Socket подключён: ${nickname}`);
