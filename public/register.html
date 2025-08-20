@@ -32,8 +32,11 @@
       height: auto;
     }
 
-    .auth-container input {
+    .auth-container input,
+    .auth-container select,
+    .auth-container button {
       width: 100%;
+      box-sizing: border-box;
       padding: 12px;
       margin-bottom: 15px;
       background-color: #0e0e0e;
@@ -41,10 +44,11 @@
       color: #a4e6ff;
       border-radius: 5px;
       font-size: 16px;
+      display: block;
     }
 
     .auth-container button {
-      width: 100%;
+      margin-bottom: 0;
       padding: 12px;
       background-color: #0e0e0e;
       border: 1px solid #6dc4f3;
@@ -84,6 +88,7 @@
       }
 
       .auth-container input,
+      .auth-container select,
       .auth-container button {
         font-size: 15px;
         padding: 10px;
