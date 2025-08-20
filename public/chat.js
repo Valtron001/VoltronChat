@@ -3,11 +3,16 @@ window.onload = () => {
   const isMobile = window.innerWidth <= 768;
   // --- Новый unified input ---
   let activePrivate = null;
+  let currentUser = null;
   const unifiedInput = document.getElementById("unified-input");
   const chatSendBtn = document.getElementById("chat-send");
   const privateSendBtn = document.getElementById("private-send");
   const chatHistory = document.getElementById("chat-history-desktop");
   const privateHistory = document.getElementById("private-history-desktop");
+
+  socket.on("your nickname", nickname => {
+    currentUser = nickname;
+  });
 
   // Выбор пользователя для лички
   function setActivePrivate(username) {
